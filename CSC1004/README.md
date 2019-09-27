@@ -1,4 +1,4 @@
-# CSC1004
+# CSC1004 COMPUTER ORGANIZATION & ARCHITECTURE
 
 ## Lecturer  
-Prof. Cao Qo
+Prof. Cao Qi
