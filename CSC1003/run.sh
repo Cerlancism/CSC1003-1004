@@ -1,6 +1,6 @@
 clear
 rm linear_regression.exe
-gcc -o linear_regression ./src/*.c
+gcc -o linear_regression.exe ./src/*.c
 
 if [ -e linear_regression.exe ]; then
     ./linear_regression.exe	
