@@ -1,14 +1,17 @@
 #include <stdio.h>
 
 #include "test.h"
+#include "plotter.h"
 
 int main()
 {
-    printf("Linear Regression\n");
-    printf("This application requires a maximised console window.\n");
-    test();
+    printf("========      Linear Regression      ========\n\n");
+    printf("This application requires a maximised console window.\n\n");
 
-    printf("Completed Linear Regression\n");
+    test();
+    init_plotter(45, 200);
+
+    printf("\n\n======== Completed Linear Regression ========\n\n");
     fgetchar();
     return 0;
 }

@@ -1,3 +1,4 @@
+cls
 del linear_regression.exe
 gcc -o linear_regression ./src/*.c
 
