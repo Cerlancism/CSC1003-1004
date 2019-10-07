@@ -13,4 +13,4 @@ Not using GCC make lol
 
 > Relative path to this folder  
 
-`gcc -o prog ./src/*.c`
+`gcc -o linear_regression ./src/*.c`
