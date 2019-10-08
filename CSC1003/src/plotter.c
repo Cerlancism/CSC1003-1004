@@ -24,11 +24,13 @@ void init_plotter(int rows, int colums, int xStart, unsigned int xLength, int yS
         _displayBuffer[i] = malloc(sizeof(char) * _columns);
     }
 
-    for (size_t i = 0; i < _columns - 1; i++)
+    // Initialise an ASCII art box
+    _displayBuffer[0][0] = ' ';
+    for (size_t i = 1; i < _columns - 2; i++)
     {
-        _displayBuffer[0][i] = '-';
+        _displayBuffer[0][i] = '_';
     }
-    _displayBuffer[0][_columns - 1] = '\0';
+    _displayBuffer[0][_columns - 2] = '\0';
 
     for (size_t i = 1; i < (_rows - 1); i++)
     {
@@ -41,10 +43,12 @@ void init_plotter(int rows, int colums, int xStart, unsigned int xLength, int yS
         _displayBuffer[i][_columns - 1] = '\0';
     }
 
-    for (size_t i = 0; i < _columns - 1; i++)
+    _displayBuffer[_rows - 1][0] = '|';
+    for (size_t i = 1; i < _columns - 2; i++)
     {
-        _displayBuffer[_rows - 1][i] = '-';
+        _displayBuffer[_rows - 1][i] = '_';
     }
+    _displayBuffer[_rows - 1][_columns - 2] = '|';
     _displayBuffer[_rows - 1][_columns - 1] = '\0';
 }
 
@@ -55,6 +59,7 @@ void render()
     {
         printf("%s\n", _displayBuffer[i]);
     }
+    printf("\n\n");
 }
 
 void dispose()
