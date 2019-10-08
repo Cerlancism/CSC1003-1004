@@ -12,6 +12,6 @@ int main()
     init_plotter(45, 200);
 
     printf("\n\n======== Completed Linear Regression ========\n\n");
-    fgetchar();
+    getchar();
     return 0;
 }
