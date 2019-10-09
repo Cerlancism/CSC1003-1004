@@ -9,7 +9,7 @@ static int _columns;
 static char **_displayBuffer;
 
 // Initialise the plotter display size.
-void init_plotter(int rows, int colums, int xStart, unsigned int xLength, int yStart, unsigned int yLength)
+void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yStart, unsigned int yLength)
 {
     printf("Init Plotter\n\n\n");
 
@@ -43,17 +43,17 @@ void init_plotter(int rows, int colums, int xStart, unsigned int xLength, int yS
         _displayBuffer[i][_columns - 1] = '\0';
     }
 
-    _displayBuffer[_rows - 1][0] = '|';
+    _displayBuffer[_rows - 1][0] = '+';
     for (size_t i = 1; i < _columns - 2; i++)
     {
-        _displayBuffer[_rows - 1][i] = '_';
+        _displayBuffer[_rows - 1][i] = '-';
     }
-    _displayBuffer[_rows - 1][_columns - 2] = '|';
+    _displayBuffer[_rows - 1][_columns - 2] = '+';
     _displayBuffer[_rows - 1][_columns - 1] = '\0';
 }
 
 // Display the plotter to console.
-void render()
+void plotter_render()
 {
     for (size_t i = 0; i < _rows; i++)
     {
@@ -62,7 +62,7 @@ void render()
     printf("\n\n");
 }
 
-void dispose()
+void plotter_dispose()
 {
     free(_displayBuffer);
 }
