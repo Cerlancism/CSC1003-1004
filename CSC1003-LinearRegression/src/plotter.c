@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "test.h"
 
@@ -7,6 +8,27 @@ static int _rows;
 static int _columns;
 
 static char **_displayBuffer;
+
+static void printText(char *text, int posX, int posY)
+{
+    int textLenth = strlen(text);
+    char *line = _displayBuffer[posY];
+    for (int i = 0; i < textLenth; i++)
+    {
+        line[posX + i] = text[i];
+    }
+}
+
+static char *charRepeat(char character, unsigned int count)
+{
+    char *output = malloc(sizeof(char) * (count + 1));
+    output[count] = '\0';
+    for (int i = 0; i < count; i++)
+    {
+        output[i] = character;
+    }
+    return output;
+}
 
 // Initialise the plotter display size.
 void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yStart, unsigned int yLength)
@@ -18,38 +40,32 @@ void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yS
 
     // Allocate memory for display buffer.
     _displayBuffer = malloc(sizeof(char *) * _rows);
-
+    char *emptyfill = charRepeat(' ', colums);
     for (int i = 0; i < _rows; i++)
     {
-        _displayBuffer[i] = malloc(sizeof(char) * _columns);
+        _displayBuffer[i] = malloc(sizeof(char) * (_columns + 1));
+        printText(emptyfill, 0, i);
+        _displayBuffer[i][colums] = '\0';
     }
+    free(emptyfill);
 
     // Initialise an ASCII art box
-    _displayBuffer[0][0] = ' ';
-    for (size_t i = 1; i < _columns - 2; i++)
-    {
-        _displayBuffer[0][i] = '_';
-    }
-    _displayBuffer[0][_columns - 2] = '\0';
+    char *topBorder = charRepeat('_', _columns - 2);
+    char *bottomBorder = charRepeat('-', _columns - 2);
 
-    for (size_t i = 1; i < (_rows - 1); i++)
+    printText(" ", 0, 0);
+    printText(topBorder, 1, 0);
+
+    for (int y = 1; y < _rows - 1; y++)
     {
-        _displayBuffer[i][0] = '|';
-        for (size_t j = 1; j < _columns - 2; j++)
-        {
-            _displayBuffer[i][j] = ' ';
-        }
-        _displayBuffer[i][_columns - 2] = '|';
-        _displayBuffer[i][_columns - 1] = '\0';
+        printText("|", 0, y);
+        printText("|", _columns - 1, y);
     }
 
-    _displayBuffer[_rows - 1][0] = '+';
-    for (size_t i = 1; i < _columns - 2; i++)
-    {
-        _displayBuffer[_rows - 1][i] = '-';
-    }
-    _displayBuffer[_rows - 1][_columns - 2] = '+';
-    _displayBuffer[_rows - 1][_columns - 1] = '\0';
+    printText(" ", 0, 0);
+    printText(bottomBorder, 1, _rows - 1);
+    free(topBorder);
+    free(bottomBorder);
 }
 
 // Display the plotter to console.
