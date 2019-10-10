@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define MAX_INPUT 256
+
 // Parse char '0' and '1' into int, else throw.
 unsigned short bitCharToInt(char input)
 {
@@ -180,6 +182,16 @@ int *calculateSyndrome(int *correctCheckBitStream, int *errorCheckBitStream, int
     return output;
 }
 
+int bitStreamToInt(int *bitStream, int length)
+{
+    int output = 0;
+    for (int i = 0; i < length; i++)
+    {
+        output += bitStream[i] * pow(2, i);
+    }
+    return output;
+}
+
 void hamming()
 {
     printf("========= Single Error Correction Hamming =========\n");
@@ -188,20 +200,26 @@ void hamming()
     printf("Enter data length (8 or 16): ");
 
     unsigned short bitLength;
-    char inputBuffer[18] = {'\0'};
+    char inputBuffer[MAX_INPUT + 2] = {'\0'};
 
     scanf("%i", &bitLength);
     getchar(); // Flush the trailling line break from scanf to prepare for a fgets call later.
 
-    if (bitLength != 8 && bitLength != 16)
+    // This algorithm any reasonable arbitary bit length
+    if (bitLength < 2 || bitLength > MAX_INPUT)
     {
         printf("Unsupport bit length! exiting...\n");
         exit(1);
     }
 
+    if (bitLength != 8 && bitLength != 16)
+    {
+        printf("Warning: you have enter a bit length of %d, it may work but this is unofficially supported by the program.\n", bitLength);
+    }
+
     // Prompt for correct data stream
     printf("Enter error free data stream length of %d: ", bitLength);
-    fgets(inputBuffer, 18, stdin); // Using scanf seams problematic if user enters an extremely long invalid input.
+    fgets(inputBuffer, MAX_INPUT + 2, stdin); // Using scanf seams problematic if user enters an extremely long invalid input.
     terminateAtLineBreak(inputBuffer);
 
     int inputLength = strlen(inputBuffer);
@@ -223,6 +241,12 @@ void hamming()
     if (errorBitindex > bitLength)
     {
         printf("Error bit index exceeds data stream length of %d, exiting...", bitLength);
+        exit(1);
+    }
+
+    if (errorBitindex == 0)
+    {
+        printf("Error position is one-based index which cannot be 0, exiting...");
         exit(1);
     }
 
@@ -256,18 +280,7 @@ void hamming()
     printf("Syndrome Word: ");
     printBitStream(syndrome, checkBitLength);
 
-    printf("Which position in table gets error: ");
-
-    for (int i = 0; i < checkBitStreamLength; i++)
-    {
-        if (!isCheckBitPosition(i))
-        {
-            if (correctCheckBitStreamArray[i] != errorCheckBitStreamArray[i])
-            {
-                printf("%d ", i + 1); // Add 1 as table is one-based index to present.
-            }
-        }
-    }
+    printf("Which position in table gets error: %d", bitStreamToInt(syndrome, checkBitLength));
 
     printf("\n==== Completed Single Error Correction Hamming ====\n");
 }
