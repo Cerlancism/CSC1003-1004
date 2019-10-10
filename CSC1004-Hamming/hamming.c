@@ -294,6 +294,14 @@ void hamming()
     printf("Which position in table gets error: %d", bitStreamToInt(syndrome, checkBitLength));
 
     printf("\n==== Completed Single Error Correction Hamming ====\n");
+
+    free(correctStreamArray);
+    free(errorStreamArray);
+    free(correctDataCheckBits);
+    free(errorDataCheckBits);
+    free(correctCheckBitStreamArray);
+    free(errorCheckBitStreamArray);
+    free(syndrome);
 }
 
 int main()
