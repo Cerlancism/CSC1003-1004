@@ -210,7 +210,7 @@ void hamming()
     scanf("%i", &bitLength);
     getchar(); // Flush the trailling line break from scanf to prepare for a fgets call later.
 
-    // This algorithm any reasonable arbitary bit length
+    // This program supports any reasonable arbitary bit length.
     if (bitLength < 2 || bitLength > MAX_INPUT)
     {
         printf("Unsupport bit length! Exiting...\n");
