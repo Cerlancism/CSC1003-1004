@@ -1,12 +1,12 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <stdlib.h> // malloc
+#include <stdio.h>  // printf scanf fgets
+#include <string.h> // strlen
+#include <math.h>   // pow
 
-#define MAX_INPUT 256
+#define MAX_INPUT 256 // Buffer size for input bits in string
 
-// Parse char '0' and '1' into int, else throw.
-unsigned short bitCharToInt(char input)
+// Parse char '0' and '1' into int 0 and 1, else -1 to show error
+short bitCharToInt(char input)
 {
     switch (input)
     {
@@ -15,8 +15,8 @@ unsigned short bitCharToInt(char input)
     case '1':
         return 1;
     default:
-        printf("Data stream contains invalid bit char of '%c'! Please enter either 0 or 1. Exiting...", input);
-        exit(1);
+        printf("Data stream contains invalid bit char of '%c'! Please enter either 0 or 1. Exiting...\n", input);
+        return -1;
     }
 }
 
@@ -98,7 +98,7 @@ int *initIntArray(unsigned int length)
     int *output = malloc(sizeof(int) * length);
     for (int i = 0; i < length; i++)
     {
-        output[i] = 0; // Init the int array to 0
+        output[i] = 0; // Init the int array to 0 to ease debugging.
     }
     return output;
 }
@@ -109,7 +109,12 @@ int *initBitStreamArray(char *inputBuffer)
     int *output = initIntArray(length);
     for (int i = length - 1, j = 0; i > -1; i--, j++) // Reversing the index as least significant bit is from the right.
     {
-        output[j] = bitCharToInt(inputBuffer[i]);
+        int bit = bitCharToInt(inputBuffer[i]);
+        if (bit == -1) // Contains an invalid char.
+        {
+            return NULL;
+        }
+        output[i] = bit;
     }
     return output;
 }
@@ -132,7 +137,7 @@ int *initStreamCheckBitArray(int *stream, int totalLength)
     {
         if (isCheckBitPosition(i))
         {
-            output[i] = 2; // Assign placeholder 2 for now to represent an uncalculated check bit.
+            output[i] = -1; // Assign a placeholder for now to represent an uncalculated check bit.
         }
         else
         {
@@ -141,9 +146,9 @@ int *initStreamCheckBitArray(int *stream, int totalLength)
         }
     }
 
-    for (int i = 0, cb = 0 /*check bit number */; i < totalLength; i++)
+    for (int i = 0, cb = 0 /*check bit number*/; i < totalLength; i++)
     {
-        if (output[i] == 2) // Is placeholder for unassigned check bit
+        if (output[i] == -1) // Is placeholder for unassigned check bit
         {
             output[i] = calculateCheckBit(output, totalLength, cb);
             cb++;
@@ -208,8 +213,8 @@ void hamming()
     // This algorithm any reasonable arbitary bit length
     if (bitLength < 2 || bitLength > MAX_INPUT)
     {
-        printf("Unsupport bit length! exiting...\n");
-        exit(1);
+        printf("Unsupport bit length! Exiting...\n");
+        return;
     }
 
     if (bitLength != 8 && bitLength != 16)
@@ -226,28 +231,34 @@ void hamming()
 
     if (inputLength != bitLength)
     {
-        printf("Entered data stream does not match bit length of %d, exiting...\n", bitLength);
-        exit(1);
+        printf("Entered data stream does not match bit length of %d! Exiting...\n", bitLength);
+        return;
     }
 
     int *correctStreamArray = initBitStreamArray(inputBuffer);
+
+    if (correctStreamArray == NULL) // Input is invalid bit stream.
+    {
+        return;
+    }
 
     // Prompt for error bit index
     printf("Enter which data bit has error (one-based index): ");
 
     unsigned short errorBitindex;
     scanf("%d", &errorBitindex);
+    getchar();
 
     if (errorBitindex > bitLength)
     {
-        printf("Error bit index exceeds data stream length of %d, exiting...", bitLength);
-        exit(1);
+        printf("Error bit index exceeds data stream length of %d! Exiting...\n", bitLength);
+        return;
     }
 
     if (errorBitindex == 0)
     {
-        printf("Error position is one-based index which cannot be 0, exiting...");
-        exit(1);
+        printf("Error position is one-based index which cannot be 0! Exiting...\n");
+        return;
     }
 
     int *errorStreamArray = initErrorStreamArray(correctStreamArray, bitLength, errorBitindex);
@@ -287,7 +298,14 @@ void hamming()
 
 int main()
 {
-    hamming();
+    char rerun[1];
+    do
+    {
+        hamming();
+        printf("\n\nDo you want to re-run this program? (Y/N) ");
+        scanf("%s", &rerun);
+        printf("\n");
+    } while (rerun[0] == 'Y' || rerun[0] == 'y');
 
     return 0;
 }
