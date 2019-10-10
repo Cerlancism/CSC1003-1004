@@ -182,7 +182,7 @@ int *calculateSyndrome(int *correctCheckBitStream, int *errorCheckBitStream, int
 
 void hamming()
 {
-    printf("==== Single Error Correction Hamming ====\n");
+    printf("========= Single Error Correction Hamming =========\n");
 
     // Prompt for bit length
     printf("Enter data length (8 or 16): ");
@@ -236,25 +236,40 @@ void hamming()
     int *correctCheckBitStreamArray = initStreamCheckBitArray(correctStreamArray, checkBitStreamLength);
     int *errorCheckBitStreamArray = initStreamCheckBitArray(errorStreamArray, checkBitStreamLength);
 
-    printf("Correct Full Check Bit Stream: ");
-    printBitStream(correctCheckBitStreamArray, checkBitStreamLength);
+    // printf("Correct Full Check Bit Stream: ");
+    // printBitStream(correctCheckBitStreamArray, checkBitStreamLength);
 
-    printf("Errored Full Check Bit Stream: ");
-    printBitStream(errorCheckBitStreamArray, checkBitStreamLength);
+    // printf("Errored Full Check Bit Stream: ");
+    // printBitStream(errorCheckBitStreamArray, checkBitStreamLength);
 
     int *correctDataCheckBits = getCheckBits(correctCheckBitStreamArray, checkBitStreamLength, checkBitLength);
     int *errorDataCheckBits = getCheckBits(errorCheckBitStreamArray, checkBitStreamLength, checkBitLength);
 
-    printf("Correct data stream check bits: ");
+    printf("Check bits of the correct data stream: ");
     printBitStream(correctDataCheckBits, checkBitLength);
 
-    printf("Errored data stream check bits: ");
+    printf("Check bits of the errored data stream: ");
     printBitStream(errorDataCheckBits, checkBitLength);
 
     int *syndrome = calculateSyndrome(correctCheckBitStreamArray, errorCheckBitStreamArray, checkBitStreamLength, checkBitLength);
 
     printf("Syndrome Word: ");
     printBitStream(syndrome, checkBitLength);
+
+    printf("Which position in table gets error: ");
+
+    for (int i = 0; i < checkBitStreamLength; i++)
+    {
+        if (!isCheckBitPosition(i))
+        {
+            if (correctCheckBitStreamArray[i] != errorCheckBitStreamArray[i])
+            {
+                printf("%d ", i + 1); // Add 1 as table is one-based index to present.
+            }
+        }
+    }
+
+    printf("\n==== Completed Single Error Correction Hamming ====\n");
 }
 
 int main()
