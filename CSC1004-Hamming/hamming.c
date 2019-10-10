@@ -18,10 +18,15 @@ unsigned short bitCharToInt(char input)
     }
 }
 
-// Check the position in a stream is a position to hold check bit, it is zero-based.
-int isCheckBitPosition(int position, int checkBitNumber)
+int isPowerOfTwo(int x)
 {
-    return position == (pow(2, checkBitNumber) - 1); // minus 1 because its zero-based.
+    return (x & (x - 1)) == 0;
+}
+
+// Check the position in a stream is a position to hold check bit, it is zero-based.
+int isCheckBitPosition(int position)
+{
+    return isPowerOfTwo(position + 1); // offset 1 because its zero-based.
 }
 
 // Purge the occurance of '\n' to string terminator, such as a string from a fgets.
@@ -38,7 +43,7 @@ void terminateAtLineBreak(char *input)
     }
 }
 
-unsigned int calculateCheckBitLength(unsigned int bitLength)
+unsigned int calculateCheckBitLength(int bitLength)
 {
     unsigned int k = 0;
     unsigned int m = bitLength;
@@ -60,33 +65,15 @@ void printBitStream(int *bitStream, int length)
     {
         printf("%d", bitStream[i]);
     }
+    printf("\n");
 }
-
-// int bitSteamXOR(int *bitStream, int length)
-// {
-//     if (length < 2)
-//     {
-//         printf("Bit Stream XOR requires at least length of 2!");
-//         exit(1);
-//     }
-//     int output = bitStream[0];
-//     for (int i = 1; i < length; i++)
-//     {
-//         output = output != bitStream[i];
-//     }
-//     return output;
-// }
 
 int calculateCheckBit(int *checkBitStream, int length, int checkBitNumber)
 {
-    int output = -1;                                                              // Placeholder for uninitialised XOR output
-    for (int i = 0, cb = 0 /* check bit number is zero based */; i < length; i++) // Stream positioning is zero-based.
+    int output = -1;                 // Placeholder for uninitialised XOR output
+    for (int i = 0; i < length; i++) // Stream positioning is zero-based.
     {
-        if (isCheckBitPosition(i, cb))
-        {
-            cb++;
-        }
-        else
+        if (!isCheckBitPosition(i))
         {
             if (((i + 1) >> checkBitNumber) % 2 == 1) // Is a data bit for the check bit number.
             {
@@ -139,12 +126,11 @@ int *initStreamCheckBitArray(int *stream, int totalLength)
 {
     int *output = initIntArray(totalLength);
 
-    for (int i = 0, cb = 0 /*check bit number */, s = 0 /*original stream counter*/; i < totalLength; i++)
+    for (int i = 0, s = 0 /*original stream counter*/; i < totalLength; i++)
     {
-        if (isCheckBitPosition(i, cb))
+        if (isCheckBitPosition(i))
         {
             output[i] = 2; // Assign placeholder 2 for now to represent an uncalculated check bit.
-            cb++;          // Increment check bit number
         }
         else
         {
@@ -159,6 +145,36 @@ int *initStreamCheckBitArray(int *stream, int totalLength)
         {
             output[i] = calculateCheckBit(output, totalLength, cb);
             cb++;
+        }
+    }
+    return output;
+}
+
+int *getCheckBits(int *checkBitStreamStream, int length, int checkBitLength)
+{
+    int *output = malloc(sizeof(int) * checkBitLength);
+
+    for (int i = 0, cb = 0; i < length; i++)
+    {
+        if (isCheckBitPosition(i))
+        {
+            output[cb] = checkBitStreamStream[i];
+            cb++;
+        }
+    }
+    return output;
+}
+
+int *calculateSyndrome(int *correctCheckBitStream, int *errorCheckBitStream, int length, int checkBitLength)
+{
+    int *output = malloc(sizeof(int) * checkBitLength);
+
+    for (int i = 0, s = 0; i < length; i++)
+    {
+        if (isCheckBitPosition(i))
+        {
+            output[s] = correctCheckBitStream[i] != errorCheckBitStream[i];
+            s++;
         }
     }
     return output;
@@ -214,19 +230,31 @@ void hamming()
 
     printf("Data stream with 1-bit error: ");
     printBitStream(errorStreamArray, bitLength);
-    printf("\n");
 
+    int checkBitLength = calculateCheckBitLength(bitLength);
     int checkBitStreamLength = calculateTotalDataCheckBitLength(bitLength);
     int *correctCheckBitStreamArray = initStreamCheckBitArray(correctStreamArray, checkBitStreamLength);
     int *errorCheckBitStreamArray = initStreamCheckBitArray(errorStreamArray, checkBitStreamLength);
 
-    printf("Correct Check Bit Stream: ");
+    printf("Correct Full Check Bit Stream: ");
     printBitStream(correctCheckBitStreamArray, checkBitStreamLength);
-    printf("\n");
 
-    printf("Errored Check Bit Stream: ");
+    printf("Errored Full Check Bit Stream: ");
     printBitStream(errorCheckBitStreamArray, checkBitStreamLength);
-    printf("\n");
+
+    int *correctDataCheckBits = getCheckBits(correctCheckBitStreamArray, checkBitStreamLength, checkBitLength);
+    int *errorDataCheckBits = getCheckBits(errorCheckBitStreamArray, checkBitStreamLength, checkBitLength);
+
+    printf("Correct data stream check bits: ");
+    printBitStream(correctDataCheckBits, checkBitLength);
+
+    printf("Errored data stream check bits: ");
+    printBitStream(errorDataCheckBits, checkBitLength);
+
+    int *syndrome = calculateSyndrome(correctCheckBitStreamArray, errorCheckBitStreamArray, checkBitStreamLength, checkBitLength);
+
+    printf("Syndrome Word: ");
+    printBitStream(syndrome, checkBitLength);
 }
 
 int main()
