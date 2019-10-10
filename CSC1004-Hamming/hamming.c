@@ -214,7 +214,7 @@ void hamming()
 
     if (bitLength != 8 && bitLength != 16)
     {
-        printf("Warning: you have enter a bit length of %d, it may work but this is unofficially supported by the program.\n", bitLength);
+        printf("Warning: you have entered a bit length of %d, it may work but this is unofficially supported by the program.\n", bitLength);
     }
 
     // Prompt for correct data stream
