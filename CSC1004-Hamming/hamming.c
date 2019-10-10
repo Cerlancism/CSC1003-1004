@@ -12,7 +12,7 @@ int bitCharToInt(char input)
     case '1':
         return 1;
     default:
-        printf("Data stream invalid bit char! Please enter either 0 or 1. Exiting...");
+        printf("Data stream contains invalid bit char of '%c'! Please enter either 0 or 1. Exiting...", input);
         exit(0);
     }
 }
@@ -35,7 +35,28 @@ void removeLineBreak(char *input)
     }
 }
 
-int main()
+unsigned int calculateCheckBitLength(unsigned int bitLength)
+{
+    unsigned int k = 0;
+    unsigned int m = bitLength;
+
+    while ((pow(2, k) - 1) < (m + k))
+    {
+        k++;
+    }
+
+    return k;
+}
+
+void printBitStream(int *bitStream, int length)
+{
+    for (int i = length - 1; i > -1; i--)
+    {
+        printf("%d", bitStream[i]);
+    }
+}
+
+void hamming()
 {
     printf("==== Single Error Correction Hamming ====\n");
     printf("Please enter data length (8 or 16): ");
@@ -71,7 +92,7 @@ int main()
         if (isCheckBitPosition(i, currentCheckBit))
         {
             currentCheckBit++;
-            dataArray[i] = -1;
+            dataArray[i] = 2;
         }
         else
         {
@@ -84,11 +105,12 @@ int main()
         }
     }
 
-    printf("Data Array: ");
-    for (int i = 20; i > -1; i--)
-    {
-        printf("%d,", dataArray[i]);
-    }
+    printBitStream(dataArray, 21);
+}
+
+int main()
+{
+    hamming();
 
     return 0;
 }
