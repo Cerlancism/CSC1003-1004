@@ -213,7 +213,7 @@ void hamming()
     // This program supports any reasonable arbitary bit length.
     if (bitLength < 2 || bitLength > MAX_INPUT)
     {
-        printf("Unsupport bit length! Exiting...\n");
+        printf("Unsupported bit length! Exiting...\n");
         return;
     }
 
