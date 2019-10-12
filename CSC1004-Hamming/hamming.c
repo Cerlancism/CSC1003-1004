@@ -1,7 +1,6 @@
 #include <stdlib.h> // malloc
 #include <stdio.h>  // printf scanf fgets
 #include <string.h> // strlen
-#include <math.h>   // pow
 
 #define MAX_INPUT 256 // Buffer size for input bits in string
 
@@ -49,7 +48,7 @@ unsigned int calculateCheckBitLength(int bitLength)
 {
     unsigned int k = 0;
     unsigned int m = bitLength;
-    while ((pow(2, k) - 1) < (m + k))
+    while (((1 << k) - 1) < (m + k))
     {
         k++;
     }
@@ -192,7 +191,7 @@ int bitStreamToInt(int *bitStream, int length)
     int output = 0;
     for (int i = 0; i < length; i++)
     {
-        output += bitStream[i] * pow(2, i);
+        output += bitStream[i] * (1 << i);
     }
     return output;
 }
