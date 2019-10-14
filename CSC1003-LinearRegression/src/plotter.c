@@ -2,18 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "test.h"
-
 static int _rows;
 static int _columns;
 
 static char **_displayBuffer;
 
-static void printText(char *text, int posX, int posY)
+static void printText(char *text, unsigned int posX, unsigned int posY)
 {
+    if (posY > _rows - 1)
+    {
+        return;
+    }
+
     int textLenth = strlen(text);
     char *line = _displayBuffer[posY];
-    for (int i = 0; i < textLenth; i++)
+    for (int i = 0; i < textLenth && (posX + i) < _columns; i++)
     {
         line[posX + i] = text[i];
     }
@@ -40,12 +43,12 @@ void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yS
 
     // Allocate memory for display buffer.
     _displayBuffer = malloc(sizeof(char *) * _rows);
-    char *emptyfill = charRepeat(' ', colums);
+    char *emptyfill = charRepeat(' ', _columns);
     for (int i = 0; i < _rows; i++)
     {
         _displayBuffer[i] = malloc(sizeof(char) * (_columns + 1));
         printText(emptyfill, 0, i);
-        _displayBuffer[i][colums] = '\0';
+        _displayBuffer[i][_columns] = '\0';
     }
     free(emptyfill);
 
@@ -66,6 +69,8 @@ void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yS
     printText(bottomBorder, 1, _rows - 1);
     free(topBorder);
     free(bottomBorder);
+
+    printText("test", _columns - 2, -100);
 }
 
 // Display the plotter to console.
