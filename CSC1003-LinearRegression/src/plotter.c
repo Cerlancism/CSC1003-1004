@@ -64,9 +64,13 @@ void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yS
     {
         printText("|", leftPad, y);
         printText("|", _columns - 1, y);
+
+        char counterPrint[3];
+        sprintf(counterPrint, "%d", _rows - 2 - y);
+        printText(counterPrint, 1, y);
     }
 
-    printText(bottomBorder, 1 + leftPad, _rows - 1);
+    printText(topBorder, 1 + leftPad, _rows - 2);
     free(topBorder);
     free(bottomBorder);
 
