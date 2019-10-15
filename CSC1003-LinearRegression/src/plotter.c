@@ -41,6 +41,8 @@ void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yS
     _rows = rows;
     _columns = colums;
 
+    int leftPad = 10;
+
     // Allocate memory for display buffer.
     _displayBuffer = malloc(sizeof(char *) * _rows);
     char *emptyfill = charRepeat(' ', _columns);
@@ -53,20 +55,18 @@ void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yS
     free(emptyfill);
 
     // Initialise an ASCII art box
-    char *topBorder = charRepeat('_', _columns - 2);
-    char *bottomBorder = charRepeat('-', _columns - 2);
+    char *topBorder = charRepeat('_', _columns - 2 - leftPad);
+    char *bottomBorder = charRepeat('-', _columns - 2 - leftPad);
 
-    printText(" ", 0, 0);
-    printText(topBorder, 1, 0);
+    printText(topBorder, 1 + leftPad, 0);
 
     for (int y = 1; y < _rows - 1; y++)
     {
-        printText("|", 0, y);
+        printText("|", leftPad, y);
         printText("|", _columns - 1, y);
     }
 
-    printText(" ", 0, 0);
-    printText(bottomBorder, 1, _rows - 1);
+    printText(bottomBorder, 1 + leftPad, _rows - 1);
     free(topBorder);
     free(bottomBorder);
 
