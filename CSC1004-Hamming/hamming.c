@@ -62,7 +62,6 @@ unsigned short calculateTotalDataCheckBitLength(unsigned int bitLength)
 // Returns -1 if input has invalid char
 int parseBits(char *input, int length)
 {
-    length--;
     int output = 0;
     for (int i = 0; i < length; i++)
     {
@@ -73,8 +72,37 @@ int parseBits(char *input, int length)
         }
         else if (bit == 1)
         {
-            output = (bit << (length - i)) | output;
+            output = (bit << (length - i - 1)) | output;
         }
+    }
+    return output;
+}
+
+int calculateCheckbits(int data, int checkBitLength, int totalDataCheckBitLength)
+{
+    int output = 0;
+    for (int cb = 0; cb < checkBitLength; cb++)
+    {
+        int checkBit = -1; // Placeholder for uninitialised check bit.
+        for (int db = 0, pos = 0; pos < totalDataCheckBitLength; pos++)
+        {
+            if (!isCheckBitPosition(pos))
+            {
+                if (((pos + 1) >> cb) & 1)
+                {
+                    if (checkBit == -1)
+                    {
+                        checkBit = (data >> db) & 1;
+                    }
+                    else
+                    {
+                        checkBit = checkBit ^ ((data >> db) & 1);
+                    }
+                }
+                db++;
+            }
+        }
+        output = output | (checkBit << cb);
     }
     return output;
 }
@@ -135,6 +163,9 @@ void hamming()
         return;
     }
 
+    printf("entered: ");
+    printIntAsBinary(correctData, bitLength);
+
     // Prompt for error bit index
     printf("Enter which data bit has error (one-based index): ");
 
@@ -158,6 +189,22 @@ void hamming()
 
     printf("Data with one bit error at position %d: ", errorBitindex);
     printIntAsBinary(errorData, bitLength);
+
+    int checkBitLength = calculateCheckBitLength(bitLength);
+
+    int correctCheckBits = calculateCheckbits(correctData, checkBitLength, totalDataCheckBitLength);
+    printf("Check bits of the correct data: ");
+    printIntAsBinary(correctCheckBits, checkBitLength);
+
+    int errorCheckBits = calculateCheckbits(errorData, checkBitLength, totalDataCheckBitLength);
+    printf("Check bits of the errored data: ");
+    printIntAsBinary(errorCheckBits, checkBitLength);
+
+    int syndrome = correctCheckBits ^ errorCheckBits;
+    printf("Symdrome word: ");
+    printIntAsBinary(syndrome, checkBitLength);
+
+    printf("Position at table: %d", syndrome);
 
     printf("\n==== Completed Single Error Correction Hamming ====\n");
 }
