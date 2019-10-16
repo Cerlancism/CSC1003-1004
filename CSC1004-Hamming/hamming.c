@@ -43,12 +43,12 @@ void terminateAtLineBreak(char *input)
     }
 }
 
-unsigned short calculateCheckBitLength(int bitLength)
+unsigned short calculateCheckBitLength(unsigned short bitLength)
 {
     unsigned short k = 0, m = bitLength;
-    while (((1 << k) - 1) < (m + k))
+    while (((1 << k) - 1) < (m + k)) // 2^k - 1 is less than m + k
     {
-        k++;
+        k++; // Increase check bit length
     }
     return k;
 }
@@ -60,13 +60,13 @@ int parseBits(char *input, int length)
     for (int i = 0; i < length; i++)
     {
         int bit = bitCharToInt(input[i]);
-        if (bit == -1)
+        if (bit == -1) // Invalid char
         {
             return -1;
         }
         else if (bit == 1)
         {
-            output = (bit << (length - i - 1)) | output;
+            output = (bit << (length - i - 1)) | output; // Shift the bit to its possition and merge the bit to the output
         }
     }
     return output;
@@ -75,21 +75,21 @@ int parseBits(char *input, int length)
 int calculateCheckbits(int data, int checkBitLength, int totalDataCheckBitLength)
 {
     int output = 0;
-    for (int cb = 0; cb < checkBitLength; cb++)
+    for (int cb = 0; cb < checkBitLength; cb++) // Loop through the check bits
     {
-        int checkBit = -1; // Placeholder for uninitialised check bit.
-        for (int db = 0, pos = 0; pos < totalDataCheckBitLength; pos++)
+        int checkBit = 0;
+        for (int db = 0, pos = 0; pos < totalDataCheckBitLength; pos++) // Loop through the data check bit positions
         {
-            if (!isCheckBitPosition(pos))
+            if (!isCheckBitPosition(pos)) // Is a data bit
             {
-                if (((pos + 1) >> cb) & 1)
+                if (((pos + 1) >> cb) & 1) // Is the position for the corresponding check bit
                 {
-                    checkBit = checkBit == -1 ? (data >> db) & 1 : checkBit ^ ((data >> db) & 1);
+                    checkBit = checkBit ^ ((data >> db) & 1);
                 }
-                db++;
+                db++; // Increase data bit position
             }
         }
-        output = output | (checkBit << cb);
+        output = output | (checkBit << cb); // Merge the check bits
     }
     return output;
 }
@@ -98,7 +98,7 @@ void printIntAsBinary(int input, int length)
 {
     do
     {
-        printf("%d", ((input >> (length - 1)) & 1));
+        printf("%d", ((input >> (length - 1)) & 1)); // Prints the bit at position from the most to least significant  bit
     } while (--length);
     puts("");
 }
@@ -110,12 +110,11 @@ void hamming()
     // Prompt for bit length
     printf("Enter data length (8 or 16): ");
     unsigned short bitLength;
-    char inputBuffer[MAX_INPUT + 2] = {'\0'};
     scanf("%i", &bitLength);
     getchar(); // Flush the trailling line break from scanf to prepare for a fgets call later.
 
-    unsigned short checkBitLength = calculateCheckBitLength(bitLength);
-    unsigned short totalDataCheckBitLength = checkBitLength + bitLength;
+    int checkBitLength = calculateCheckBitLength(bitLength);
+    int totalDataCheckBitLength = checkBitLength + bitLength;
 
     // This program supports arbitary bit length where the total data and check bits are less than 32 (int buffer - 1).
     if (bitLength < 2 || totalDataCheckBitLength > 31)
@@ -130,6 +129,7 @@ void hamming()
 
     // Prompt for correct data stream
     printf("Enter error free data stream length of %d: ", bitLength);
+    char inputBuffer[MAX_INPUT + 2] = {'\0'};
     fgets(inputBuffer, MAX_INPUT + 2, stdin); // Using scanf seams problematic if user enters an extremely long invalid input.
     terminateAtLineBreak(inputBuffer);
     int inputLength = strlen(inputBuffer);
@@ -180,7 +180,7 @@ void hamming()
     printf("Symdrome word: ");
     printIntAsBinary(syndrome, checkBitLength);
 
-    printf("Position at table: %d", syndrome);
+    printf("Position at data bits check bits table: %d", syndrome);
 
     printf("\n==== Completed Single Error Correction Hamming ====\n");
 }
