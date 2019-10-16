@@ -135,9 +135,6 @@ void hamming()
         return;
     }
 
-    printf("Entered Data: ");
-    printIntAsBinary(correctData, bitLength);
-
     // Prompt for error bit index
     printf("Enter which data bit has error (one-based index): ");
 
@@ -156,6 +153,11 @@ void hamming()
         printf("Error position is one-based index which cannot be 0! Exiting...\n");
         return;
     }
+
+    int errorData = correctData ^ (1 << (errorBitindex - 1));
+
+    printf("Data with one bit error at position %d: ", errorBitindex);
+    printIntAsBinary(errorData, bitLength);
 
     printf("\n==== Completed Single Error Correction Hamming ====\n");
 }
