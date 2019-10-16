@@ -1,4 +1,3 @@
-#include <stdlib.h> // malloc
 #include <stdio.h>  // printf scanf fgets
 #include <string.h> // strlen
 
@@ -54,11 +53,6 @@ unsigned short calculateCheckBitLength(int bitLength)
     return k;
 }
 
-unsigned short calculateTotalDataCheckBitLength(unsigned int bitLength)
-{
-    return calculateCheckBitLength(bitLength) + bitLength;
-}
-
 // Returns -1 if input has invalid char
 int parseBits(char *input, int length)
 {
@@ -90,14 +84,7 @@ int calculateCheckbits(int data, int checkBitLength, int totalDataCheckBitLength
             {
                 if (((pos + 1) >> cb) & 1)
                 {
-                    if (checkBit == -1)
-                    {
-                        checkBit = (data >> db) & 1;
-                    }
-                    else
-                    {
-                        checkBit = checkBit ^ ((data >> db) & 1);
-                    }
+                    checkBit = checkBit == -1 ? (data >> db) & 1 : checkBit ^ ((data >> db) & 1);
                 }
                 db++;
             }
@@ -122,14 +109,13 @@ void hamming()
 
     // Prompt for bit length
     printf("Enter data length (8 or 16): ");
-
     unsigned short bitLength;
     char inputBuffer[MAX_INPUT + 2] = {'\0'};
-
     scanf("%i", &bitLength);
     getchar(); // Flush the trailling line break from scanf to prepare for a fgets call later.
 
-    unsigned short totalDataCheckBitLength = calculateTotalDataCheckBitLength(bitLength);
+    unsigned short checkBitLength = calculateCheckBitLength(bitLength);
+    unsigned short totalDataCheckBitLength = checkBitLength + bitLength;
 
     // This program supports arbitary bit length where the total data and check bits are less than 32 (int buffer - 1).
     if (bitLength < 2 || totalDataCheckBitLength > 31)
@@ -137,7 +123,6 @@ void hamming()
         printf("Unsupported bit length! Exiting...\n");
         return;
     }
-
     if (bitLength != 8 && bitLength != 16)
     {
         printf("Warning: you have entered a bit length of %d, it may work but this is unofficially supported by the program.\n", bitLength);
@@ -147,7 +132,6 @@ void hamming()
     printf("Enter error free data stream length of %d: ", bitLength);
     fgets(inputBuffer, MAX_INPUT + 2, stdin); // Using scanf seams problematic if user enters an extremely long invalid input.
     terminateAtLineBreak(inputBuffer);
-
     int inputLength = strlen(inputBuffer);
 
     if (inputLength != bitLength)
@@ -163,12 +147,8 @@ void hamming()
         return;
     }
 
-    printf("entered: ");
-    printIntAsBinary(correctData, bitLength);
-
     // Prompt for error bit index
     printf("Enter which data bit has error (one-based index): ");
-
     unsigned short errorBitindex;
     scanf("%i", &errorBitindex);
     getchar();
@@ -178,7 +158,6 @@ void hamming()
         printf("Error bit index exceeds data stream length of %d! Exiting...\n", bitLength);
         return;
     }
-
     if (errorBitindex == 0)
     {
         printf("Error position is one-based index which cannot be 0! Exiting...\n");
@@ -186,11 +165,8 @@ void hamming()
     }
 
     int errorData = correctData ^ (1 << (errorBitindex - 1));
-
-    printf("Data with one bit error at position %d: ", errorBitindex);
+    printf("Data with one bit error at position D%d: ", errorBitindex);
     printIntAsBinary(errorData, bitLength);
-
-    int checkBitLength = calculateCheckBitLength(bitLength);
 
     int correctCheckBits = calculateCheckbits(correctData, checkBitLength, totalDataCheckBitLength);
     printf("Check bits of the correct data: ");
@@ -219,6 +195,5 @@ int main()
         scanf("%s", &rerun);
         printf("\n");
     } while (rerun[0] == 'Y' || rerun[0] == 'y');
-
     return 0;
 }
