@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define LEFT_PAD 10
 
-#define Plot_Column(x) LEFT_PAD + 1 + x
-#define Plot_Row(x) _bufferRows - 2 - x
+#define Plot_X(x) (int)(LEFT_PAD + 1 + roundf(x))
+#define Plot_Y(x) (int)(_bufferRows - 2 - roundf(x))
 
 static int _bufferRows;
 static int _bufferColumns;
@@ -88,12 +89,12 @@ void plotter_init(int rows, int colums, float xStart, float xLength, int yStart,
     {
         char lablePrint[4];
         sprintf(lablePrint, "|%.2f", (float)i);
-        printText(lablePrint, LEFT_PAD + 1 + i, _bufferRows - 1);
+        printText(lablePrint, Plot_X(i), _bufferRows - 1);
     }
 
-    for (int i = 0; i < _plotColumns; i++)
+    for (int x = 0; x < _plotColumns; x++)
     {
-        printText("*", Plot_Column(i), Plot_Row((rand() % 50 + 1)));
+        printText("*", Plot_X(x), Plot_Y(-0.0075 * pow(x, 2) + 0.5 * x + 40));
     }
 
     free(topBorder);
