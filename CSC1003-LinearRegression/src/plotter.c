@@ -5,15 +5,30 @@
 
 #define LEFT_PAD 10
 
-#define Plot_X(x) (int)(LEFT_PAD + 1 + roundf(x))
-#define Plot_Y(x) (int)(_bufferRows - 2 - roundf(x))
+#define Print_Coord_X(x) (int)(LEFT_PAD + 1 + roundf(x))
+#define Print_Coord_Y(x) (int)(_bufferRows - 2 - roundf(x))
 
 static int _bufferRows;
 static int _bufferColumns;
 static int _plotRows;
 static int _plotColumns;
+static float _xMultiplier;
+static float _xOffset;
+static float _yMultiplier;
+static float _yOffset;
 
 static char **_displayBuffer;
+
+static char *charRepeat(char character, unsigned int count)
+{
+    char *output = malloc(sizeof(char) * (count + 1));
+    output[count] = '\0';
+    for (int i = 0; i < count; i++)
+    {
+        output[i] = character;
+    }
+    return output;
+}
 
 static void printText(char *text, unsigned int posX, unsigned int posY)
 {
@@ -30,19 +45,19 @@ static void printText(char *text, unsigned int posX, unsigned int posY)
     }
 }
 
-static char *charRepeat(char character, unsigned int count)
+void plotter_printCoord(char *text, float x, float y)
 {
-    char *output = malloc(sizeof(char) * (count + 1));
-    output[count] = '\0';
-    for (int i = 0; i < count; i++)
+    int plotX = Print_Coord_X((x + _xOffset) / _xMultiplier);
+    int plotY = Print_Coord_Y((y + _yOffset) / _yMultiplier);
+
+    if (plotY > 0 && plotY <= _plotRows + 1)
     {
-        output[i] = character;
+        printText(text, plotX, plotY);
     }
-    return output;
 }
 
 // Initialise the plotter display size. xLength and yLength to be positive.
-void plotter_init(int rows, int colums, float xStart, float xLength, int yStart, float yLength)
+void plotter_init(int rows, int colums, float xStart, float xLength, float yStart, float yLength)
 {
     printf("Init Plotter\n\n\n");
 
@@ -56,6 +71,11 @@ void plotter_init(int rows, int colums, float xStart, float xLength, int yStart,
     _bufferColumns = colums + LEFT_PAD + 3;
     _plotRows = rows;
     _plotColumns = colums;
+
+    _xOffset = -xStart;
+    _yOffset = -yStart;
+    _xMultiplier = xLength / colums;
+    _yMultiplier = yLength / rows;
 
     // Allocate memory for display buffer.
     _displayBuffer = malloc(sizeof(char *) * _bufferRows);
@@ -79,7 +99,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, int yStart,
         printText("|", _bufferColumns - 1, y);
 
         char lablePrint[8];
-        sprintf(lablePrint, "%7.4f", (float)_bufferRows - 2 - y);
+        sprintf(lablePrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
         printText(lablePrint, 1, y);
     }
 
@@ -87,14 +107,25 @@ void plotter_init(int rows, int colums, float xStart, float xLength, int yStart,
 
     for (int i = 0; (i + 1) < _plotColumns; i += 10)
     {
-        char lablePrint[4];
-        sprintf(lablePrint, "|%.2f", (float)i);
-        printText(lablePrint, Plot_X(i), _bufferRows - 1);
+        char lablePrint[8];
+        sprintf(lablePrint, "|%.2f", i * _xMultiplier + xStart);
+        printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
     }
 
-    for (int x = 0; x < _plotColumns; x++)
+    for (float x = xStart; x < xStart + xLength; x += _xMultiplier)
     {
-        printText("*", Plot_X(x), Plot_Y(-0.0075 * pow(x, 2) + 0.5 * x + 40));
+        plotter_printCoord("*", x, 2.2 * x - 3.5);
+    }
+
+    for (float y = yStart; y < yStart + yLength; y += _yMultiplier)
+    {
+        plotter_printCoord("y", sqrt(-y + 30) + 5, y);
+        plotter_printCoord("y", -sqrt(-y + 30) + 5, y);
+    }
+
+    for (float x = xStart; x < xStart + xLength; x += _xMultiplier)
+    {
+        plotter_printCoord("x", x, -pow(x - 5, 2) + 30);
     }
 
     free(topBorder);

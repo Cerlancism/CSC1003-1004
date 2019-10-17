@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "test.h"
 #include "plotter.h"
@@ -8,7 +9,25 @@ int main()
     printf("========      Linear Regression      ========\n\n");
     printf("This application requires a maximised console window.\n\n");
 
-    plotter_init(50, 220, -1, 21, -20, 100);
+    plotter_init(50, 150, -3, 15, -10, 41);
+
+    for (int i = 0; i < 100; i++)
+    {
+        switch (rand() % 3)
+        {
+        case 1:
+            plotter_printCoord("XD", rand() / (float)RAND_MAX * 15 - 3, rand() / (float)RAND_MAX * 41 - 10);
+            break;
+        case 2:
+            plotter_printCoord("lol", rand() / (float)RAND_MAX * 15 - 3, rand() / (float)RAND_MAX * 41 - 10);
+            break;
+
+        default:
+            plotter_printCoord("LMAO", rand() / (float)RAND_MAX * 15 - 3, rand() / (float)RAND_MAX * 41 - 10);
+            break;
+        }
+    }
+
     plotter_render();
     test();
 
