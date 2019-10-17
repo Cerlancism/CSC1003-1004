@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "test.h"
 #include "plotter.h"
@@ -9,9 +10,11 @@ int main()
     printf("========      Linear Regression      ========\n\n");
     printf("This application requires a maximised console window.\n\n");
 
-    plotter_init(50, 150, -3, 15, -10, 41);
+    plotter_init(50, 100, -3, 15, -10, 41);
 
-    for (int i = 0; i < 100; i++)
+    srand(time(NULL));
+
+    for (int i = 0; i < 50; i++)
     {
         switch (rand() % 3)
         {
