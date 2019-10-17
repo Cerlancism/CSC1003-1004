@@ -2,21 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int _rows;
-static int _columns;
+#define LEFT_PAD 10
+
+#define Plot_Column(x) LEFT_PAD + 1 + x
+#define Plot_Row(x) _bufferRows - 2 - x
+
+static int _bufferRows;
+static int _bufferColumns;
+static int _plotRows;
+static int _plotColumns;
 
 static char **_displayBuffer;
 
 static void printText(char *text, unsigned int posX, unsigned int posY)
 {
-    if (posY > _rows - 1)
+    if (posY > _bufferRows - 1)
     {
         return;
     }
 
     int textLenth = strlen(text);
     char *line = _displayBuffer[posY];
-    for (int i = 0; i < textLenth && (posX + i) < _columns; i++)
+    for (int i = 0; i < textLenth && (posX + i) < _bufferColumns; i++)
     {
         line[posX + i] = text[i];
     }
@@ -33,54 +40,71 @@ static char *charRepeat(char character, unsigned int count)
     return output;
 }
 
-// Initialise the plotter display size.
-void plotter_init(int rows, int colums, int xStart, unsigned int xLength, int yStart, unsigned int yLength)
+// Initialise the plotter display size. xLength and yLength to be positive.
+void plotter_init(int rows, int colums, float xStart, float xLength, int yStart, float yLength)
 {
     printf("Init Plotter\n\n\n");
 
-    _rows = rows;
-    _columns = colums;
+    if (xLength < 0 || yLength < 0)
+    {
+        printf("EXCEPTION: xLength and yLength must be positive.\n");
+        exit(1); // Exception occurs and kills program.
+    }
 
-    int leftPad = 10;
+    _bufferRows = rows + 3;
+    _bufferColumns = colums + LEFT_PAD + 3;
+    _plotRows = rows;
+    _plotColumns = colums;
 
     // Allocate memory for display buffer.
-    _displayBuffer = malloc(sizeof(char *) * _rows);
-    char *emptyfill = charRepeat(' ', _columns);
-    for (int i = 0; i < _rows; i++)
+    _displayBuffer = malloc(sizeof(char *) * _bufferRows);
+    char *emptyfill = charRepeat(' ', _bufferColumns);
+    for (int i = 0; i < _bufferRows; i++)
     {
-        _displayBuffer[i] = malloc(sizeof(char) * (_columns + 1));
+        _displayBuffer[i] = malloc(sizeof(char) * (_bufferColumns + 1));
         printText(emptyfill, 0, i);
-        _displayBuffer[i][_columns] = '\0';
+        _displayBuffer[i][_bufferColumns] = '\0';
     }
     free(emptyfill);
 
     // Initialise an ASCII art box
-    char *topBorder = charRepeat('_', _columns - 2 - leftPad);
-    char *bottomBorder = charRepeat('-', _columns - 2 - leftPad);
+    char *topBorder = charRepeat('_', _bufferColumns - 2 - LEFT_PAD);
 
-    printText(topBorder, 1 + leftPad, 0);
+    printText(topBorder, 1 + LEFT_PAD, 0);
 
-    for (int y = 1; y < _rows - 1; y++)
+    for (int y = 1; y < _bufferRows - 1; y++)
     {
-        printText("|", leftPad, y);
-        printText("|", _columns - 1, y);
+        printText("|", LEFT_PAD, y);
+        printText("|", _bufferColumns - 1, y);
 
-        char counterPrint[3];
-        sprintf(counterPrint, "%d", _rows - 2 - y);
-        printText(counterPrint, 1, y);
+        char lablePrint[8];
+        sprintf(lablePrint, "%7.4f", (float)_bufferRows - 2 - y);
+        printText(lablePrint, 1, y);
     }
 
-    printText(topBorder, 1 + leftPad, _rows - 2);
-    free(topBorder);
-    free(bottomBorder);
+    printText(topBorder, 1 + LEFT_PAD, _bufferRows - 2);
 
-    printText("test", _columns - 2, -100);
+    for (int i = 0; (i + 1) < _plotColumns; i += 10)
+    {
+        char lablePrint[4];
+        sprintf(lablePrint, "|%.2f", (float)i);
+        printText(lablePrint, LEFT_PAD + 1 + i, _bufferRows - 1);
+    }
+
+    for (int i = 0; i < _plotColumns; i++)
+    {
+        printText("*", Plot_Column(i), Plot_Row((rand() % 50 + 1)));
+    }
+
+    free(topBorder);
+
+    printText("test", _bufferColumns - 2, -100);
 }
 
 // Display the plotter to console.
 void plotter_render()
 {
-    for (size_t i = 0; i < _rows; i++)
+    for (size_t i = 0; i < _bufferRows; i++)
     {
         printf("%s\n", _displayBuffer[i]);
     }
