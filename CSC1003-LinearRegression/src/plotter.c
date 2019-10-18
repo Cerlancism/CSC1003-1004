@@ -112,6 +112,16 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
         printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
     }
 
+    for (int x = 0; x < _plotColumns; x++)
+    {
+        printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
+    }
+
+    for (int y = 0; y <= _plotRows; y++)
+    {
+        printText("|", Print_Coord_X(_xOffset / _xMultiplier), Print_Coord_Y(y));
+    }
+
     free(topBorder);
 }
 
