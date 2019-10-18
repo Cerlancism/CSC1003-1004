@@ -112,25 +112,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
         printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
     }
 
-    for (float x = xStart; x < xStart + xLength; x += _xMultiplier)
-    {
-        plotter_printCoord("*", x, 2.2 * x - 3.5);
-    }
-
-    for (float y = yStart; y < yStart + yLength; y += _yMultiplier)
-    {
-        plotter_printCoord("y", sqrt(-y + 30) + 5, y);
-        plotter_printCoord("y", -sqrt(-y + 30) + 5, y);
-    }
-
-    for (float x = xStart; x < xStart + xLength; x += _xMultiplier)
-    {
-        plotter_printCoord("x", x, -pow(x - 5, 2) + 30);
-    }
-
     free(topBorder);
-
-    printText("test", _bufferColumns - 2, -100);
 }
 
 // Display the plotter to console.
