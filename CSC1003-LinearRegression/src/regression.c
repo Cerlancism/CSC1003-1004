@@ -89,12 +89,12 @@ int main(void)
 
     float scale = 1;
 
-    float xStart = 0 * scale;
-    float xLength = 20 * scale;
+    float xStart = -2 * scale;
+    float xLength = 25 * scale;
     float xEnd = xStart + xLength;
 
-    float yStart = -12 * scale;
-    float yLength = 40 * scale;
+    float yStart = floor(minY) * scale;
+    float yLength = ceil(maxY - minY) * scale;
     float yEnd = yStart + yEnd;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
 
@@ -117,14 +117,16 @@ int main(void)
     float lablePositionX = xStart + xLength / 2;
     sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
     plotter_printCoord(equationLable, lablePositionX, m * lablePositionX + c - yToConsoleStep * 2); // Print Equation lable on middle of line graph.
-    plotter_printCoord(" ------------------ ", lablePositionX, m * lablePositionX + c - yToConsoleStep * 1);
-    plotter_printCoord(" ------------------ ", lablePositionX, m * lablePositionX + c - yToConsoleStep * 3);
+    plotter_printCoord(".------------------.", lablePositionX, m * lablePositionX + c - yToConsoleStep * 1);
+    plotter_printCoord("'------------------'", lablePositionX, m * lablePositionX + c - yToConsoleStep * 3);
 
     // Print the graph to the console
     plotter_render();
 
     printf("Please maximise console window and run again if the this looks weird.\n\n");
     printf("\n\n======== Completed Linear Regression ========\n\n");
+
+    getchar();
 
     return 0;
 }
