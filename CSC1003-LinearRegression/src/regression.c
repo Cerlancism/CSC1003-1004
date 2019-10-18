@@ -9,6 +9,9 @@
 #define SIZE 10000
 #define SCALE 100
 
+#define PLOT_HEIGHT 50
+#define PLOT_WIDTH 80
+
 typedef struct coord2D
 {
     float x;
@@ -84,23 +87,26 @@ int main(void)
     printf("\n\n========      Linear Regression      ========\n\n");
     printf("This application requires a maximised console window.\n\n");
 
-    plotter_init(50, 200, 0, 20, -12, 40);
+    float xStart = 0;
+    float xEnd = 20;
+
+    plotter_init(PLOT_HEIGHT, PLOT_WIDTH, 0, 20, -12, 40);
 
     for (int i = 0; i < SIZE; i++)
     {
         plotter_printCoord("X", coordinates[i].x, coordinates[i].y);
     }
 
-    for (float x = 0; x <= 20; x += (20.0 / 200))
+    for (float x = 0; x <= xEnd; x += (xEnd / PLOT_WIDTH))
     {
         plotter_printCoord("*", x, m * x + c);
     }
 
     char equationLable[20];
     sprintf(equationLable, "|y = %.2fx + %.2f|", m, c);
-    plotter_printCoord(equationLable, 10, m * 10 + c - 3 * m); // Print Equation lable on middle of line graph.
-    plotter_printCoord("|----------------|", 10, m * 10 + c - 2 * m);
-    plotter_printCoord("|----------------|", 10, m * 10 + c - 5 * m);
+    plotter_printCoord(equationLable, xEnd / 2, m * xEnd / 2 + c - 3 * m); // Print Equation lable on middle of line graph.
+    plotter_printCoord("|----------------|", 10, m * xEnd / 2 + c - 2 * m);
+    plotter_printCoord("|----------------|", 10, m * xEnd / 2 + c - 5 * m);
 
     plotter_render();
 
