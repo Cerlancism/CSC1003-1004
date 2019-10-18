@@ -84,7 +84,7 @@ int main(void)
 
     plotter_init(50, 100, 0, 20, -12, 40);
 
-    for (float x = 0; x <= 20; x += m)
+    for (float x = 0; x <= 20; x += (20.0 / 100))
     {
         plotter_printCoord("*", x, m * x + c);
     }
