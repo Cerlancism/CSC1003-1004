@@ -8,11 +8,14 @@
 
 #define SIZE 10000
 #define SCALE 100
+
 typedef struct coord2D
 {
     float x;
     float y;
 } coord2D;
+
+coord2D *coordinates;
 
 void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY)
 {
@@ -20,7 +23,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     size_t line_buf_size = 0, index = 0;
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f, sumYY = 0.0f, sumXY = 0.0f, yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
     FILE *fileStream = fopen(file, "r");
-    coord2D *coordinates = (coord2D *)malloc(sizeof(coord2D) * SIZE);
+    coordinates = (coord2D *)malloc(sizeof(coord2D) * SIZE);
     if (!coordinates)
     {
         printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
@@ -56,14 +59,13 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     }
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE));
     fclose(fileStream);
-    free(coordinates);
+    //free(coordinates);
 }
 
 int main(void)
 {
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f; /* Regression line gradient and constant */
     /* char grid[SCALE][SCALE] = {" "}; */
-    int i = 0;
     float maxX = 0.001f;
     float minY = 0.0f;
     float maxY = 0.0f;
@@ -74,7 +76,7 @@ int main(void)
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
     printf(" ");
-    for (; i < SCALE; ++i)
+    for (int i; i < SCALE; ++i)
         printf("-");
     printf(" %.3f \n", maxX);
     printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
@@ -82,16 +84,23 @@ int main(void)
     printf("\n\n========      Linear Regression      ========\n\n");
     printf("This application requires a maximised console window.\n\n");
 
-    plotter_init(50, 100, 0, 20, -12, 40);
+    plotter_init(50, 200, 0, 20, -12, 40);
 
-    for (float x = 0; x <= 20; x += (20.0 / 100))
+    for (int i = 0; i < SIZE; i++)
+    {
+        plotter_printCoord("X", coordinates[i].x, coordinates[i].y);
+    }
+
+    for (float x = 0; x <= 20; x += (20.0 / 200))
     {
         plotter_printCoord("*", x, m * x + c);
     }
 
-    char equationLable[50];
-    sprintf(equationLable, "y = %fx + %f", m, c);
-    plotter_printCoord(equationLable, 10, m * 10 + c - 2 * m); // Print Equation lable on middle of line graph.
+    char equationLable[20];
+    sprintf(equationLable, "|y = %.2fx + %.2f|", m, c);
+    plotter_printCoord(equationLable, 10, m * 10 + c - 3 * m); // Print Equation lable on middle of line graph.
+    plotter_printCoord("|----------------|", 10, m * 10 + c - 2 * m);
+    plotter_printCoord("|----------------|", 10, m * 10 + c - 5 * m);
 
     plotter_render();
 
