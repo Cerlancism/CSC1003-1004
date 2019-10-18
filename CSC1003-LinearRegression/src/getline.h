@@ -1,4 +1,4 @@
-#ifndef getline
+#ifdef _WIN32
 /* This code is public domain -- Will Hartung 4/9/09 */
 #include <stdio.h>
 #include <stdlib.h>
