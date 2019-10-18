@@ -1,3 +1,10 @@
+/*
+
+plotter.c
+Treats the console out like a canvas drawing ascii characters on position x and y.
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +12,9 @@
 
 #define LEFT_PAD 10
 
+// Offset x buffer position relative the plot
 #define Print_Coord_X(x) (int)(LEFT_PAD + 1 + roundf(x))
+// Offset y buffer position relative the plot
 #define Print_Coord_Y(x) (int)(_bufferRows - 2 - roundf(x))
 
 static int _bufferRows;
@@ -30,6 +39,7 @@ static char *charRepeat(char character, unsigned int count)
     return output;
 }
 
+// Prints a string of text on the plotter view port
 static void printText(char *text, unsigned int posX, unsigned int posY)
 {
     if (posY > _bufferRows - 1)
@@ -45,12 +55,13 @@ static void printText(char *text, unsigned int posX, unsigned int posY)
     }
 }
 
+// Prints a string on the plotter coordinate.
 void plotter_printCoord(char *text, float x, float y)
 {
     int plotX = Print_Coord_X((x + _xOffset) / _xMultiplier);
     int plotY = Print_Coord_Y((y + _yOffset) / _yMultiplier);
 
-    if (plotY > 0 && plotY <= _plotRows + 1)
+    if (plotY > 0 && plotY <= _plotRows + 1 && (plotX > LEFT_PAD))
     {
         printText(text, plotX, plotY);
     }
@@ -93,6 +104,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
 
     printText(topBorder, 1 + LEFT_PAD, 0);
 
+    // Prints the y bar labling
     for (int y = 1; y < _bufferRows - 1; y++)
     {
         printText("|", LEFT_PAD, y);
@@ -105,6 +117,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
 
     printText(topBorder, 1 + LEFT_PAD, _bufferRows - 2);
 
+    // Prints the x bar labling
     for (int i = 0; (i + 1) < _plotColumns; i += 10)
     {
         char lablePrint[8];
@@ -112,14 +125,19 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
         printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
     }
 
+    // Draw the x axis
     for (int x = 0; x < _plotColumns; x++)
     {
         printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
     }
 
-    for (int y = 0; y <= _plotRows; y++)
+    // Draw the y axis
+    if (_xOffset > 0)
     {
-        printText("|", Print_Coord_X(_xOffset / _xMultiplier), Print_Coord_Y(y));
+        for (int y = 0; y <= _plotRows; y++)
+        {
+            printText("|", Print_Coord_X(_xOffset / _xMultiplier), Print_Coord_Y(y));
+        }
     }
 
     free(topBorder);

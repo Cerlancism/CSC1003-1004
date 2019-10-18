@@ -10,7 +10,7 @@
 #define SCALE 100
 
 #define PLOT_HEIGHT 50
-#define PLOT_WIDTH 100
+#define PLOT_WIDTH 200
 
 typedef struct coord2D
 {
@@ -87,29 +87,40 @@ int main(void)
     printf("\n\n========      Linear Regression      ========\n\n");
     printf("This application requires a maximised console window.\n\n");
 
-    float xStart = -8;
-    float xLength = 32;
+    float scale = 1;
+
+    float xStart = 0 * scale;
+    float xLength = 20 * scale;
     float xEnd = xStart + xLength;
 
-    plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, -12, 40);
+    float yStart = -12 * scale;
+    float yLength = 40 * scale;
+    float yEnd = yStart + yEnd;
+    float yToConsoleStep = yLength / PLOT_HEIGHT;
 
+    plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
+
+    // Plot the noise
     for (int i = 0; i < SIZE; i++)
     {
         plotter_printCoord("X", coordinates[i].x, coordinates[i].y);
     }
 
+    // Plot the line
     for (float x = xStart; x < xEnd; x += (xEnd / PLOT_WIDTH))
     {
         plotter_printCoord("*", x, m * x + c);
     }
 
+    // Show a lable in the graph
     char equationLable[20];
     float lablePositionX = xStart + xLength / 2;
-    sprintf(equationLable, "|y = %.2fx + %.2f|", m, c);
-    plotter_printCoord(equationLable, lablePositionX, m * lablePositionX + c - m * 3); // Print Equation lable on middle of line graph.
-    plotter_printCoord("|----------------|", lablePositionX, m * lablePositionX + c - 2 * m);
-    plotter_printCoord("|----------------|", lablePositionX, m * lablePositionX + c - 5 * m);
+    sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
+    plotter_printCoord(equationLable, lablePositionX, m * lablePositionX + c - yToConsoleStep * 2); // Print Equation lable on middle of line graph.
+    plotter_printCoord(" ------------------ ", lablePositionX, m * lablePositionX + c - yToConsoleStep * 1);
+    plotter_printCoord(" ------------------ ", lablePositionX, m * lablePositionX + c - yToConsoleStep * 3);
 
+    // Print the graph to the console
     plotter_render();
 
     printf("Please maximise console window and run again if the this looks weird.\n\n");
