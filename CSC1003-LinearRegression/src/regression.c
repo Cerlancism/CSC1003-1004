@@ -12,6 +12,12 @@
 #define PLOT_HEIGHT 50
 #define PLOT_WIDTH 200
 
+#ifdef _WIN32
+#define CLEARCLS "cls"
+#else
+#define CLEARCLS "clear"
+#endif
+
 typedef struct coord2D
 {
     float x;
@@ -84,49 +90,98 @@ int main(void)
     printf(" %.3f \n", maxX);
     printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
 
-    printf("\n\n========      Linear Regression      ========\n\n");
-    printf("This application requires a maximised console window.\n\n");
-
     float scale = 1;
+    float viewX = -2;
+    float viewY = floor(minY);
 
-    float xStart = -2 * scale;
-    float xLength = 25 * scale;
-    float xEnd = xStart + xLength;
+    char controlChar = 0;
 
-    float yStart = floor(minY) * scale;
-    float yLength = ceil(maxY - minY) * scale;
-    float yEnd = yStart + yEnd;
-    float yToConsoleStep = yLength / PLOT_HEIGHT;
-
-    plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
-
-    // Plot the noise
-    for (int i = 0; i < SIZE; i++)
+    while (1)
     {
-        plotter_printCoord("X", coordinates[i].x, coordinates[i].y);
+        printf("This application requires a maximised console window.\n");
+        float xStart = viewX * scale;
+        float xLength = 25 * scale;
+        float xEnd = xStart + xLength;
+        float yStart = viewY * scale;
+        float yLength = ceil(maxY - minY) * scale;
+        float yEnd = yStart + yEnd;
+        float yToConsoleStep = yLength / PLOT_HEIGHT;
+
+        plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
+
+        // Plot the noise
+        for (int i = 0; i < SIZE; i++)
+        {
+            plotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
+        }
+
+        // Plot the line
+        float lineStep = xLength / PLOT_WIDTH;
+        for (float x = xStart; x < xEnd; x += lineStep)
+        {
+            float y = m * x + c;
+            plotter_printCoord("*", &x, &y);
+        }
+
+        // Show a lable in the graph
+        char equationLable[20];
+        float lablePositionX = xStart + xLength / 2;
+        sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
+        float yTop = m * lablePositionX + c - yToConsoleStep * 2, yMid = m * lablePositionX + c - yToConsoleStep * 1, yBot = m * lablePositionX + c - yToConsoleStep * 3;
+        plotter_printCoord(equationLable, &lablePositionX, &yTop); // Print Equation lable on middle of line graph.
+        plotter_printCoord(".------------------.", &lablePositionX, &yMid);
+        plotter_printCoord("'------------------'", &lablePositionX, &yBot);
+
+        // Print the graph to the console
+        plotter_render();
+        plotter_dispose();
+
+        printf("Please maximise console window and run again if the this looks weird.\n");
+        printf("Type < > ^ v + - to pan and zoom the graph. current scale: %.2f\n", 1 / scale);
+        controlChar = getchar();
+        if (controlChar != '\n')
+        {
+            switch (controlChar) // Navigate the plot
+            {
+            case '<':
+                viewX -= 1;
+                break;
+            case '>':
+                viewX += 1;
+                break;
+            case '^':
+                viewY += 1;
+                break;
+            case 'v':
+            case 'V':
+                viewY -= 1;
+                break;
+            case '+':
+                if (scale > 1)
+                {
+                    scale -= 1;
+                }
+                else if (scale > 0.1)
+                {
+                    scale -= 0.1;
+                }
+                break;
+            case '-':
+                if (scale >= 1 && scale < 8)
+                {
+                    scale += 1;
+                }
+                else if (scale < 8)
+                {
+                    scale += 0.1;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        system(CLEARCLS); // Clear console screen
     }
-
-    // Plot the line
-    for (float x = xStart; x < xEnd; x += (xEnd / PLOT_WIDTH))
-    {
-        plotter_printCoord("*", x, m * x + c);
-    }
-
-    // Show a lable in the graph
-    char equationLable[20];
-    float lablePositionX = xStart + xLength / 2;
-    sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
-    plotter_printCoord(equationLable, lablePositionX, m * lablePositionX + c - yToConsoleStep * 2); // Print Equation lable on middle of line graph.
-    plotter_printCoord(".------------------.", lablePositionX, m * lablePositionX + c - yToConsoleStep * 1);
-    plotter_printCoord("'------------------'", lablePositionX, m * lablePositionX + c - yToConsoleStep * 3);
-
-    // Print the graph to the console
-    plotter_render();
-
-    printf("Please maximise console window and run again if the this looks weird.\n\n");
-    printf("\n\n======== Completed Linear Regression ========\n\n");
-
-    getchar();
 
     return 0;
 }

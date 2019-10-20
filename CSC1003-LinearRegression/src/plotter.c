@@ -56,10 +56,10 @@ static void printText(char *text, unsigned int posX, unsigned int posY)
 }
 
 // Prints a string on the plotter coordinate.
-void plotter_printCoord(char *text, float x, float y)
+void plotter_printCoord(char *text, const float *const x, const float *const y)
 {
-    int plotX = Print_Coord_X((x + _xOffset) / _xMultiplier);
-    int plotY = Print_Coord_Y((y + _yOffset) / _yMultiplier);
+    int plotX = Print_Coord_X((*x + _xOffset) / _xMultiplier);
+    int plotY = Print_Coord_Y((*y + _yOffset) / _yMultiplier);
 
     if (plotY > 0 && plotY <= _plotRows + 1 && (plotX > LEFT_PAD))
     {
@@ -70,7 +70,7 @@ void plotter_printCoord(char *text, float x, float y)
 // Initialise the plotter display size. xLength and yLength to be positive.
 void plotter_init(int rows, int colums, float xStart, float xLength, float yStart, float yLength)
 {
-    printf("Init Plotter\n\n\n");
+    printf("\n");
 
     if (xLength < 0 || yLength < 0)
     {
@@ -150,7 +150,7 @@ void plotter_render()
     {
         printf("%s\n", _displayBuffer[i]);
     }
-    printf("\n\n");
+    printf("\n");
 }
 
 void plotter_dispose()
