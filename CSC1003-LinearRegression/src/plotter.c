@@ -155,5 +155,9 @@ void plotter_render()
 
 void plotter_dispose()
 {
+    for (int i = 0; i < _bufferRows; i++)
+    {
+        free(_displayBuffer[i]);
+    }
     free(_displayBuffer);
 }
