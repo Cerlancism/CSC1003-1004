@@ -110,7 +110,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
         printText("|", LEFT_PAD, y);
         printText("|", _bufferColumns - 1, y);
 
-        char lablePrint[8];
+        char lablePrint[10];
         sprintf(lablePrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
         printText(lablePrint, 1, y);
     }
@@ -120,8 +120,8 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
     // Prints the x bar labling
     for (int i = 0; (i + 1) < _plotColumns; i += 10)
     {
-        char lablePrint[8];
-        sprintf(lablePrint, "|%.2f", i * _xMultiplier + xStart);
+        char lablePrint[10];
+        sprintf(lablePrint, "|%-7.3f", i * _xMultiplier + xStart);
         printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
     }
 

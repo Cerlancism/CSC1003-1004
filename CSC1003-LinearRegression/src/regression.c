@@ -138,48 +138,48 @@ int main(void)
 
         printf("Please maximise console window and run again if the this looks weird.\n");
         printf("Type < > ^ v + - to pan and zoom the graph. current scale: %.2f\n", 1 / scale);
+
         controlChar = getchar();
-        if (controlChar != '\n')
+
+        switch (controlChar) // Navigate the plot
         {
-            switch (controlChar) // Navigate the plot
+        case '<':
+            viewX -= 1;
+            break;
+        case '>':
+            viewX += 1;
+            break;
+        case '^':
+            viewY += 1;
+            break;
+        case 'v':
+        case 'V':
+            viewY -= 1;
+            break;
+        case '+':
+            if (scale > 1)
             {
-            case '<':
-                viewX -= 1;
-                break;
-            case '>':
-                viewX += 1;
-                break;
-            case '^':
-                viewY += 1;
-                break;
-            case 'v':
-            case 'V':
-                viewY -= 1;
-                break;
-            case '+':
-                if (scale > 1)
-                {
-                    scale -= 1;
-                }
-                else if (scale > 0.1)
-                {
-                    scale -= 0.1;
-                }
-                break;
-            case '-':
-                if (scale >= 1 && scale < 8)
-                {
-                    scale += 1;
-                }
-                else if (scale < 8)
-                {
-                    scale += 0.1;
-                }
-                break;
-            default:
-                break;
+                scale -= 1;
             }
+            else if (scale > 0.1)
+            {
+                scale -= 0.1;
+            }
+            break;
+        case '-':
+            if (scale >= 1 && scale < 8)
+            {
+                scale += 1;
+            }
+            else if (scale < 8)
+            {
+                scale += 0.1;
+            }
+            break;
+        default:
+            break;
         }
+
         system(CLEARCLS); // Clear console screen
     }
 
