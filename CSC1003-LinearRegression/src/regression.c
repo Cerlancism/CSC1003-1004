@@ -9,8 +9,8 @@
 #define SIZE 10000
 #define SCALE 100
 
-#define PLOT_HEIGHT 50
-#define PLOT_WIDTH 200
+#define PLOT_HEIGHT 20
+#define PLOT_WIDTH 100
 
 #ifdef _WIN32
 #define CLEARCLS "cls"
@@ -161,19 +161,48 @@ int main(void)
             {
                 scale -= 1;
             }
-            else if (scale > 0.1)
+            else if (scale > 0.11)
             {
                 scale -= 0.1;
+
+                if (scale - 0.1 < 0.01)
+                {
+                    scale = 0.1;
+                }
             }
+            else if (scale > 0.05)
+            {
+                scale -= 0.01;
+
+                if (scale - 0.05 < 0.001)
+                {
+                    scale = 0.05;
+                }
+            }
+
             break;
         case '-':
             if (scale >= 1 && scale < 8)
             {
                 scale += 1;
             }
-            else if (scale < 8)
+            else if (scale < 8 && scale >= 0.1)
             {
                 scale += 0.1;
+
+                if (1 - scale < 0.01)
+                {
+                    scale = 1;
+                }
+            }
+            else if (scale < 8 && scale >= 0.04)
+            {
+                scale += 0.01;
+
+                if (0.1 - scale < 0.001)
+                {
+                    scale = 0.1;
+                }
             }
             break;
         default:
