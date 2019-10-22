@@ -70,11 +70,11 @@ void plotter_printCoord(char *text, const float *const x, const float *const y)
 // Initialise the plotter display size. xLength and yLength to be positive.
 void plotter_init(int rows, int colums, float xStart, float xLength, float yStart, float yLength)
 {
-    printf("\n");
+    puts("");
 
     if (xLength < 0 || yLength < 0)
     {
-        printf("EXCEPTION: xLength and yLength must be positive.\n");
+        puts("EXCEPTION: xLength and yLength must be positive.");
         exit(1); // Exception occurs and kills program.
     }
 
@@ -148,9 +148,9 @@ void plotter_render()
 {
     for (size_t i = 0; i < _bufferRows; i++)
     {
-        printf("%s\n", _displayBuffer[i]);
+        puts(_displayBuffer[i]);
     }
-    printf("\n");
+    puts("");
 }
 
 void plotter_dispose()

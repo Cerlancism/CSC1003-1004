@@ -4,8 +4,6 @@
 
 #include "plotter.h"
 
-#include "getline.h" // mingw needs an alternative implementation of getline
-
 #define SIZE 10000
 #define SCALE 100
 
@@ -18,6 +16,8 @@
 #define CLEARCLS "clear"
 #endif
 
+#define LINE_BUFFER_SIZE 30
+
 typedef struct coord2D
 {
     float x;
@@ -28,8 +28,8 @@ coord2D *coordinates;
 
 void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY)
 {
-    char *line_buf = NULL;
-    size_t line_buf_size = 0, index = 0;
+    char line_buf[LINE_BUFFER_SIZE];
+    size_t index = 0;
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f, sumYY = 0.0f, sumXY = 0.0f, yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
     FILE *fileStream = fopen(file, "r");
     coordinates = (coord2D *)malloc(sizeof(coord2D) * SIZE);
@@ -38,8 +38,11 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
         exit(0);
     }
-    for (; (getline(&line_buf, &line_buf_size, fileStream) >= 0) && (index < SIZE); ++index)
+
+    for (index = 0; fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL; index++)
+    {
         sscanf(line_buf, "%f,%f", &coordinates[index].x, &coordinates[index].y);
+    }
 
     for (index = 0; index < SIZE; ++index)
     {
