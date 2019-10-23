@@ -152,7 +152,7 @@ void initConfig()
 void parseCommandLine(int argc, char **argv)
 {
     char opt;
-    while ((opt = getopt(argc, argv, "f:l:r:c:h")) != -1)
+    while ((opt = getopt(argc, argv, ":f:l:r:c:h")) != -1)
     {
         switch (opt)
         {
@@ -172,7 +172,15 @@ void parseCommandLine(int argc, char **argv)
             printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n");
             exit(0);
             break;
+        case '?':
+            printf("Unkown option.\n");
+            break;
+        default:
+            goto exitLoop;
+            break;
         }
+    exitLoop:
+        return;
     }
 
     printf("File: %s", config.fileName);
@@ -184,7 +192,7 @@ void parseCommandLine(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    initConfig(0);
+    initConfig();
     parseCommandLine(argc, argv);
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f; /* Regression line gradient and constant */
     /* char grid[SCALE][SCALE] = {" "}; */
