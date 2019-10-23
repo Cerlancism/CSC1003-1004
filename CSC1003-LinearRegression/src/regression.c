@@ -48,7 +48,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
 
     if (!fileStream)
     {
-        printf("Error openning file: %s", file);
+        printf("Error openning file: %s\n", file);
         exit(0);
     }
 
