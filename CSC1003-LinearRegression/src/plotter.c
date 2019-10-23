@@ -75,7 +75,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
     if (xLength < 0 || yLength < 0)
     {
         puts("EXCEPTION: xLength and yLength must be positive.");
-        exit(1); // Exception occurs and kills program.
+        exit(0); // Exception occurs and kills program.
     }
 
     _bufferRows = rows + 3;
