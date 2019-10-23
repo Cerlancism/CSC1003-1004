@@ -179,10 +179,9 @@ void parseCommandLine(int argc, char **argv)
             goto exitLoop;
             break;
         }
-    exitLoop:
-        return;
     }
 
+exitLoop:
     printf("File: %s", config.fileName);
     printf(", Lines: %d", config.lineCount);
     printf(", Console Plot Height: %d", config.consoleHeight);
