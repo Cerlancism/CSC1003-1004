@@ -1,9 +1,9 @@
 clear
-rm linear_regression.exe
-gcc -o linear_regression.exe ./src/*.c
+rm regression.
+gcc -o regression ./src/*.c
 
-if [ -e linear_regression.exe ]; then
-    ./linear_regression.exe	
+if [ -e regression ]; then
+    ./regression	
 else
 	read -p ""
 fi
