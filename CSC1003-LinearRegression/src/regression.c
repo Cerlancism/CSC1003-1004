@@ -46,20 +46,20 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f, sumYY = 0.0f, sumXY = 0.0f, yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
     FILE *fileStream = fopen(file, "r");
 
-    if (!fileStream)
+    if (fileStream == NULL)
     {
         printf("Error openning file: %s\n", file);
         exit(0);
     }
 
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
-    if (!coordinates)
+    if (coordinates == NULL)
     {
         printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
         exit(0);
     }
 
-    for (index = 0; fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL && index < SIZE; index++)
+    for (index = 0; (fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL) && (index < SIZE); index++)
     {
         sscanf(line_buf, "%f,%f", &coordinates[index].x, &coordinates[index].y);
     }

@@ -61,7 +61,7 @@ void plotter_printCoord(char *text, const float *const x, const float *const y)
     int plotX = Print_Coord_X((*x + _xOffset) / _xMultiplier);
     int plotY = Print_Coord_Y((*y + _yOffset) / _yMultiplier);
 
-    if (plotY > 0 && plotY <= _plotRows + 1 && (plotX > LEFT_PAD))
+    if ((plotY > 0) && (plotY <= (_plotRows + 1)) && (plotX > LEFT_PAD))
     {
         printText(text, plotX, plotY);
     }
