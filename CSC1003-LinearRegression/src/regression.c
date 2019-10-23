@@ -200,8 +200,11 @@ int main(int argc, char **argv)
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
     putchar(' ');
-    for (int i; i < SCALE; ++i)
+    for (int i = 0; i < SCALE; ++i)
+    {
         putchar('-');
+    }
+
     printf(" %.3f \n", maxX);
     printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
 
