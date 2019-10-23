@@ -146,7 +146,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
 // Display the plotter to console.
 void plotter_render()
 {
-    for (size_t i = 0; i < _bufferRows; i++)
+    for (int i = 0; i < _bufferRows; i++)
     {
         puts(_displayBuffer[i]);
     }
