@@ -104,7 +104,7 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     float xLength = 25 * scale;
     float xEnd = xStart + xLength;
     float yStart = viewY * scale;
-    float yLength = ceil(maxY - minY) * scale;
+    float yLength = ceilf(maxY - minY) * scale;
     float yEnd = yStart + yEnd;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
 
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 
     float scale = 1;
     float viewX = -2;
-    float viewY = floor(minY);
+    float viewY = floorf(minY);
 
     char controlChar = 0;
 
