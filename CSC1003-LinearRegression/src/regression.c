@@ -151,7 +151,7 @@ void initConfig()
 // Process command line arguments to configure the program configurations if there are any
 void parseCommandLine(int argc, char **argv)
 {
-    char opt;
+    int opt;
     while ((opt = getopt(argc, argv, ":f:l:r:c:h")) != -1)
     {
         switch (opt)
@@ -173,10 +173,7 @@ void parseCommandLine(int argc, char **argv)
             exit(0);
             break;
         case '?':
-            printf("Unkown option.\n");
-            break;
-        default:
-            goto exitLoop;
+            printf("Unkown option -%c.\n", optopt);
             break;
         }
     }
