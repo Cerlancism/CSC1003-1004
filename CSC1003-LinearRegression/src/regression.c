@@ -21,7 +21,7 @@
 
 #define LINE_BUFFER_SIZE 30
 
-typedef struct
+typedef struct coord2D
 {
     float x;
     float y;
@@ -29,7 +29,7 @@ typedef struct
 
 Coord2D *coordinates;
 
-typedef struct
+typedef struct configuration
 {
     char fileName[128];
     int lineCount;
