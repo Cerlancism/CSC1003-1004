@@ -21,7 +21,7 @@
 
 #define LINE_BUFFER_SIZE 30
 
-typedef struct
+typedef struct coord2D
 {
     float x;
     float y;
@@ -29,7 +29,7 @@ typedef struct
 
 Coord2D *coordinates;
 
-typedef struct
+typedef struct configuration
 {
     char fileName[128];
     int lineCount;
@@ -46,20 +46,20 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f, sumYY = 0.0f, sumXY = 0.0f, yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
     FILE *fileStream = fopen(file, "r");
 
-    if (!fileStream)
+    if (fileStream == NULL)
     {
         printf("Error openning file: %s\n", file);
         exit(0);
     }
 
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
-    if (!coordinates)
+    if (coordinates == NULL)
     {
         printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
         exit(0);
     }
 
-    for (index = 0; fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL && index < SIZE; index++)
+    for (index = 0; (fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL) && (index < SIZE); index++)
     {
         sscanf(line_buf, "%f,%f", &coordinates[index].x, &coordinates[index].y);
     }
@@ -104,7 +104,7 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     float xLength = 25 * scale;
     float xEnd = xStart + xLength;
     float yStart = viewY * scale;
-    float yLength = ceil(maxY - minY) * scale;
+    float yLength = ceilf(maxY - minY) * scale;
     float yEnd = yStart + yEnd;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
 
@@ -151,7 +151,7 @@ void initConfig()
 // Process command line arguments to configure the program configurations if there are any
 void parseCommandLine(int argc, char **argv)
 {
-    char opt;
+    int opt;
     while ((opt = getopt(argc, argv, ":f:l:r:c:h")) != -1)
     {
         switch (opt)
@@ -173,15 +173,10 @@ void parseCommandLine(int argc, char **argv)
             exit(0);
             break;
         case '?':
-            printf("Unkown option.\n");
-            break;
-        default:
-            goto exitLoop;
+            printf("Unkown option -%c.\n", optopt);
             break;
         }
     }
-
-exitLoop:
     printf("File: %s", config.fileName);
     printf(", Lines: %d", config.lineCount);
     printf(", Console Plot Height: %d", config.consoleHeight);
@@ -205,14 +200,17 @@ int main(int argc, char **argv)
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
     putchar(' ');
-    for (int i; i < SCALE; ++i)
+    for (int i = 0; i < SCALE; ++i)
+    {
         putchar('-');
+    }
+
     printf(" %.3f \n", maxX);
     printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
 
     float scale = 1;
     float viewX = -2;
-    float viewY = floor(minY);
+    float viewY = floorf(minY);
 
     char controlChar = 0;
 

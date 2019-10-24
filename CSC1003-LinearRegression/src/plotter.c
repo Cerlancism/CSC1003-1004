@@ -61,7 +61,7 @@ void plotter_printCoord(char *text, const float *const x, const float *const y)
     int plotX = Print_Coord_X((*x + _xOffset) / _xMultiplier);
     int plotY = Print_Coord_Y((*y + _yOffset) / _yMultiplier);
 
-    if (plotY > 0 && plotY <= _plotRows + 1 && (plotX > LEFT_PAD))
+    if ((plotY > 0) && (plotY <= (_plotRows + 1)) && (plotX > LEFT_PAD))
     {
         printText(text, plotX, plotY);
     }
@@ -75,7 +75,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
     if (xLength < 0 || yLength < 0)
     {
         puts("EXCEPTION: xLength and yLength must be positive.");
-        exit(1); // Exception occurs and kills program.
+        exit(0); // Exception occurs and kills program.
     }
 
     _bufferRows = rows + 3;
@@ -146,7 +146,7 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
 // Display the plotter to console.
 void plotter_render()
 {
-    for (size_t i = 0; i < _bufferRows; i++)
+    for (int i = 0; i < _bufferRows; i++)
     {
         puts(_displayBuffer[i]);
     }
