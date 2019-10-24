@@ -188,6 +188,7 @@ int main(int argc, char **argv)
 {
     initConfig();
     parseCommandLine(argc, argv);
+
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f; /* Regression line gradient and constant */
     /* char grid[SCALE][SCALE] = {" "}; */
     float maxX = 0.001f;

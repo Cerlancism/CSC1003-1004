@@ -1,3 +1,17 @@
+#include <math.h>
+
+#define SCALE_MAX 8.0f
+#define SCALE_MID 0.1f
+#define SCALE_SMALL 0.05f
+
+#define STEP_MID 0.1f
+#define STEP_SMALL 0.01f
+
+static int fuzzyEquals(const float a, const float b, const float epsilon)
+{
+    return fabsf(a - b) <= epsilon;
+}
+
 void navigate(const char *const controller, float *xAxis, float *yAxis, float *scale)
 {
     switch (*controller)
@@ -20,47 +34,47 @@ void navigate(const char *const controller, float *xAxis, float *yAxis, float *s
         {
             *scale -= 1;
         }
-        else if (*scale > 0.11)
+        else if (*scale > (SCALE_MID + 0.1))
         {
-            *scale -= 0.1;
+            *scale -= STEP_MID;
 
-            if (*scale - 0.1 < 0.01)
+            if (fuzzyEquals(*scale, SCALE_MID, 0.001))
             {
-                *scale = 0.1;
+                *scale = SCALE_MID;
             }
         }
-        else if (*scale > 0.05)
+        else if (*scale > SCALE_SMALL)
         {
-            *scale -= 0.01;
+            *scale -= STEP_SMALL;
 
-            if (*scale - 0.05 < 0.001)
+            if (fuzzyEquals(*scale, SCALE_SMALL, 0.001f))
             {
-                *scale = 0.05;
+                *scale = SCALE_SMALL;
             }
         }
 
         break;
     case '-':
-        if (*scale >= 1 && *scale < 8)
+        if (*scale >= 1 && *scale < SCALE_MAX)
         {
             *scale += 1;
         }
-        else if (*scale < 8 && *scale >= 0.1)
+        else if (*scale < SCALE_MAX && *scale >= SCALE_MID)
         {
-            *scale += 0.1;
+            *scale += STEP_MID;
 
-            if (1 - *scale < 0.01)
+            if (fuzzyEquals(*scale, 1, 0.001f))
             {
                 *scale = 1;
             }
         }
-        else if (*scale < 8 && *scale >= 0.04)
+        else if (*scale < SCALE_MAX && *scale >= (SCALE_SMALL - 0.01f))
         {
-            *scale += 0.01;
+            *scale += STEP_SMALL;
 
-            if (0.1 - *scale < 0.001)
+            if (fuzzyEquals(*scale, 0.1f, 0.001f))
             {
-                *scale = 0.1;
+                *scale = SCALE_MID;
             }
         }
         break;
