@@ -72,7 +72,7 @@ void navigate(const char *const controller, float *xAxis, float *yAxis, float *s
         {
             *scale += STEP_SMALL;
 
-            if (fuzzyEquals(*scale, 0.1f, 0.001f))
+            if (fuzzyEquals(*scale, SCALE_MID, 0.001f))
             {
                 *scale = SCALE_MID;
             }

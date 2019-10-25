@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "plotter.h"   // For plotting the graph on console
-#include "navigator.h" // For nagivating the plotted graph
+#include "plotter.h"    // For plotting the graph on console
+#include "gnuplotter.h" // For plotting the graph on gnu plot
+#include "navigator.h"  // For nagivating the plotted graph
 
 // system command to clear console
 #ifdef _WIN32
@@ -214,6 +215,14 @@ int main(int argc, char **argv)
     float viewY = floorf(minY);
 
     char controlChar = 0;
+
+    printf("Do you have GNU Plot intalled? Y/N (The plot will always printed on console as ASCII art) ");
+    controlChar = getchar();
+
+    if (controlChar == 'Y' || controlChar == 'y')
+    {
+        gnu_plot(config.fileName, m, c);
+    }
 
     while (1)
     {
