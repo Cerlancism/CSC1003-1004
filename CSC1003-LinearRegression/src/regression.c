@@ -219,21 +219,32 @@ int main(int argc, char **argv)
     printf("Do you have GNU Plot intalled? Y/N (The plot will always printed on console as ASCII art) ");
     controlChar = getchar();
 
+    displayPlot(m, c, viewX, viewY, scale, minY, maxY);
     if (controlChar == 'Y' || controlChar == 'y')
     {
+        printf("Exit GNU Plot, Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
         gnu_plot(config.fileName, m, c);
     }
+    else
+    {
+        printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+    }
+    getchar();
 
     while (1)
     {
+        if (controlChar == '\n')
+        {
+            controlChar = getchar();
+            continue;
+        }
+        controlChar = getchar();
+        navigate(&controlChar, &viewX, &viewY, &scale);
+        system(CLEARCLS); // Clear console screen
         displayPlot(m, c, viewX, viewY, scale, minY, maxY);
         printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
 
-        controlChar = getchar();
-
-        navigate(&controlChar, &viewX, &viewY, &scale);
-
-        system(CLEARCLS); // Clear console screen
+        //navigate(&controlChar, &viewX, &viewY, &scale);
     }
 
     return 0;
