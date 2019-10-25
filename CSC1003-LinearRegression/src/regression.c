@@ -236,6 +236,7 @@ int main(int argc, char **argv)
         if (controlChar == '\n')
         {
             controlChar = getchar();
+            navigate(&controlChar, &viewX, &viewY, &scale);
             continue;
         }
         controlChar = getchar();
