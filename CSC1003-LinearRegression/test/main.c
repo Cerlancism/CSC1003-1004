@@ -2,10 +2,11 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define LINE_BUFFER_SIZE 30
 
-int main(int argc, char **argv)
+int openFile(int argc, char **argv)
 {
     for (int i = 0; i < argc; i++)
     {
@@ -35,6 +36,15 @@ int main(int argc, char **argv)
 
         //printf("%-30s line length: %d\n", out_buffer, strlen(out_buffer));
     }
+
+    return 0;
+}
+
+int main()
+{
+    printf("PATH : %s\n", getenv("PATH"));
+    printf("HOME : %s\n", getenv("HOME"));
+    printf("ROOT : %s\n", getenv("ROOT"));
 
     return 0;
 }

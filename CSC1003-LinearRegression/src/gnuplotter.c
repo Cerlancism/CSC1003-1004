@@ -1,13 +1,42 @@
+/*
+
+gnuplotter.c
+Adapter for GNU Plot command line interface 
+http://www.gnuplot.info/
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#define GNU_PLOTH_PATH "gnuplot -persistent"
+#define GNU_PLOTH_PATH "gnuplot"
+
+int hasGNUPlot()
+{
+    FILE *pipe = popen(GNU_PLOTH_PATH, "w");
+
+    if (pipe != NULL)
+    {
+        if (pclose(pipe) == 0) // Test if GNU plot has opened and then closed successfully. As so far on Windows, the popen will still return a non null pointer even if the process is not found.
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 void gnu_plot(const char *datafile, float m, float c)
 {
-    FILE *pipe;
+    FILE *pipe = popen(GNU_PLOTH_PATH " -persistent", "w");
 
-    if ((pipe = popen(GNU_PLOTH_PATH, "w")) != NULL)
+    if (pipe != NULL)
     {
         fprintf(pipe, "set terminal wxt size 1280,720 persist\n");
         fprintf(pipe, "set xrange [-5:25]\n");
@@ -23,12 +52,12 @@ void gnu_plot(const char *datafile, float m, float c)
     }
     else
     {
-        printf("No GNU Plot Installed!\n");
+        printf("Failed to open GNU Plot!\n");
     }
 
     if (pclose(pipe) != 0)
     {
-        printf("No GNU Plot Installed!\n");
+        printf("Error in executing GNU Plot!\n");
     }
     else
     {

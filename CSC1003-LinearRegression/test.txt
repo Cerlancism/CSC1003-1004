@@ -1,0 +1,4 @@
+Microsoft Windows [Version 10.0.18362.418]
+(c) 2019 Microsoft Corporation. All rights reserved.
+
+D:\Documents\GitHub\CSC1003-1004\CSC1003-LinearRegression>

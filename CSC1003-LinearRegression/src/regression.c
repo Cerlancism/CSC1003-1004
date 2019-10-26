@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <stdio.h>  // IO operations console/file/string
+#include <math.h>   // pow round ceil floor
+#include <stdlib.h> // malloc free
+#include <unistd.h> // Parse cli options
 
 #include "plotter.h"    // For plotting the graph on console
 #include "gnuplotter.h" // For plotting the graph on gnu plot
@@ -214,26 +214,31 @@ int main(int argc, char **argv)
     float viewX = -2;
     float viewY = floorf(minY);
 
-    char controlChar = 0;
+    char controlChar = '\0';
 
-    printf("Do you have GNU Plot intalled? Y/N (The plot will always printed on console as ASCII art) ");
-    controlChar = getchar();
-
-    displayPlot(m, c, viewX, viewY, scale, minY, maxY);
-    if (controlChar == 'Y' || controlChar == 'y')
+    if (hasGNUPlot())
     {
-        printf("Exit GNU Plot, Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
-        gnu_plot(config.fileName, m, c);
+        printf("Looks lile you have GNU Plot installed, do you want to open it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
+        controlChar = getchar();
+        displayPlot(m, c, viewX, viewY, scale, minY, maxY);
+        if (controlChar == 'Y' || controlChar == 'y')
+        {
+            printf("Exit GNU Plot, Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
+            gnu_plot(config.fileName, m, c);
+        }
     }
     else
     {
+        printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
+        displayPlot(m, c, viewX, viewY, scale, minY, maxY);
         printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
     }
-    getchar();
+
+    controlChar = '\0';
 
     while (1)
     {
-        if (controlChar == '\n')
+        if (controlChar == '\n' || controlChar == '\0')
         {
             controlChar = getchar();
             navigate(&controlChar, &viewX, &viewY, &scale);
@@ -244,8 +249,6 @@ int main(int argc, char **argv)
         system(CLEARCLS); // Clear console screen
         displayPlot(m, c, viewX, viewY, scale, minY, maxY);
         printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
-
-        //navigate(&controlChar, &viewX, &viewY, &scale);
     }
 
     return 0;
