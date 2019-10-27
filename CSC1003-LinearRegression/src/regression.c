@@ -218,13 +218,17 @@ int main(int argc, char **argv)
 
     if (hasGNUPlot())
     {
-        printf("Looks lile you have GNU Plot installed, do you want to open it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
+        printf("Looks like you have GNU Plot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
         controlChar = getchar();
         displayPlot(m, c, viewX, viewY, scale, minY, maxY);
         if (controlChar == 'Y' || controlChar == 'y')
         {
-            printf("Exit GNU Plot, Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
+            printf("Exit GNU Plot. Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
             gnu_plot(config.fileName, m, c);
+        }
+        else
+        {
+            printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
         }
     }
     else
