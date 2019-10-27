@@ -7,7 +7,7 @@ TODO
 ## Problem Analysis
 TODO
 
-## Psuedo Code
+## Pseudo Code
 `regression`
 ```
 TODO
@@ -85,19 +85,19 @@ Standard error of estimate: 3.996875
 Type < > ^ v + - to pan and zoom the graph. Current scaling: 1.00
 _
 ```
-Entering a comination of `< > ^ v + -` can be used to control the plot view.
+Entering a combination of `< > ^ v + -` can be used to control the plot view.
 
 ### Command Line Arguments
-This program accepts command line options to configure how it runs, such as using a different data file, changing the console display height and width of the ascii art plotting.
+This program accepts command line options to configure how it runs, such as using a different data file, changing the console display height and width of the ASCII art plotting.
 
 | Option    | Description                                   | Default Value | Example           |
 |:----:     |:----                                          |:----          |:-----             |
 | `-f`      | Name of the data file                         | Group1_8.txt  | `-f Group9_15.txt`|
 | `-l`      | Amount of lines to scan in the data file      | 10000         | `-l 1000`         |
-| `-c`      | Colums of the console for the ASCII plotting  | 100           | `-c 200`          |
+| `-c`      | Columns of the console for the ASCII plotting  | 100           | `-c 200`          |
 | `-r`      | Rows of the console for the ASCII plotting    | 20            | `-r 40`           |  
 
-So for example to execute the program with the data file `Group9_15.txt` with a maximised console which gives about 200 colums and 50 rows of spacing to plot the ASCII graph:  
+So for example to execute the program with the data file `Group9_15.txt` with a maximised console which gives about 200 columns and 50 rows of spacing to plot the ASCII graph:  
 
 > `./regression -f Group9_15.txt -c 200 -r 50`
 
@@ -116,7 +116,7 @@ Standard error of estimate: 3.996875
 Looks like you have GNU Plot installed, do you want to open it? Y/N
 (This program will still alternatively plot on console as ASCII art)
 ```
-Entering `Y` will pop up an addtional Window for GNU Plot.
+Entering `Y` will pop up an additional Window for GNU Plot.
 #### Installing GNU Plot
 ##### Windows
 TODO
