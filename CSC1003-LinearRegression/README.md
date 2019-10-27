@@ -95,8 +95,10 @@ This program accepts command line options to configure how it runs, such as usin
 | `-f`      | Name of the data file                         | Group1_8.txt  | `-f Group9_15.txt`|
 | `-l`      | Amount of lines to scan in the data file      | 10000         | `-l 1000`         |
 | `-c`      | Colums of the console for the ASCII plotting  | 100           | `-c 200`          |
-| `-r`      | Rows of the console for the ASCII plotting    | 20            | `-r 40`           |
-So for example to execute the program with the data file `Group9_15.txt` with a maximised console which gives about 200 colums and 50 rows of spacing to plot the ASCII graph:
+| `-r`      | Rows of the console for the ASCII plotting    | 20            | `-r 40`           |  
+
+So for example to execute the program with the data file `Group9_15.txt` with a maximised console which gives about 200 colums and 50 rows of spacing to plot the ASCII graph:  
+
 > `./regression -f Group9_15.txt -c 200 -r 50`
 
 ### Additional Feature - Launching GNU Plot
