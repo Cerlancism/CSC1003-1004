@@ -34,7 +34,7 @@ They contain the algorithms for calculating the regression line equation, file o
 
 ## Compiling
 This is compiled and tested using GCC.  
-  
+Open terminal in this directory:   
 > `gcc ./src/*c -o regression -lm`
 
 ### Platforms Supported
@@ -46,41 +46,41 @@ This is compiled and tested using GCC.
 The program by default requires a data input file of 10000 lines of comma seperated value tuple named `Group1_8.txt` (Assigned by the Lecturer) in the same directory as the regression executable.
 
 ### Executing the program with default configuration on command line
-In the current directory: 
+Run the executable in this directory:   
 > `./regression`
 
 #### Expected Output on Standard Out
 ```
-File: Group1_8.txt, Lines: 10000, Console Plot Height: 20, Console Plot Width: 100
+File: Group1_8.txt, Lines: 10000, Console Plot Height: 20, Console Plot Width: 80
 -h to display command line options
 Min Y: -9.626100 , Max Y: 25.362000
 y = 0.514091 x + 2.315605
 Correlation coefficient: 0.596192
 Coefficient of determination: 35.544506 %
 Standard error of estimate: 3.996875
-           _____________________________________________________________________________________________________
-  25.000  |        |                                                                  X         X X             |
-  23.250  |        |                                                               X    X  X   X  X             |
-  21.500  |        |                                              X                XX       X    XX             |
-  19.750  |        |                      X         X  X      X     XX X   XX XXX  X XXXX XXXXXXXXXX            |
-  18.000  |        |              X          XX  X  XXXXXX XX   X XXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXX            |
-  16.250  |        |          X   X X X X X     XXXX X  X XXXXXX  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX            |
-  14.500  |        X X  X  X   X X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       **** |
-  12.750  |        |XXXX XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*************     |
-  11.000  |        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX**************XXXXXX            |
-   9.250  |        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*************XXXXXXXXXXXXXXXXXXXX            |
-   7.500  |        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX**************XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX            |
-   5.750  |        XXXXXXXXXXXXXXXXXXXX**************XXXXXXXX.------------------.XXXXXXXXXXXXXXXXXXX            |
-   4.000  |        XXXXXXX*************XXXXXXXXXXXXXXXXXXXXXX| y = 0.51x + 2.32 |XXXXXXXXXXXXXXXXX X            |
-   2.250  | **************XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'------------------'XXXX XXX XXXXXXX X             |
-   0.500  |*-------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-XXXXXXX-XX--XX----------X------------- |
-  -1.250  |        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XX XX  XXXX XX  X        X                     |
-  -3.000  |        XXXXXXXXXXXXXXXXXXXXXXXX XX XXXXXXXXX XX XXX      X     X  XXX                               |
-  -4.750  |        |XXXXXXXXXXXXXX XX XXX X X   X    X      X   X    X                                          |
-  -6.500  |        XXXXXXXXX XX  X   X     X     X           X          X                                       |
-  -8.250  |        |  X X         X                                                                             |
- -10.000  |________|______X_____________________________________________________________________________________|
-           |-2.000   |0.500    |3.000    |5.500    |8.000    |10.500   |13.000   |15.500   |18.000   |20.500
+           _________________________________________________________________________________
+  25.000  |      |                                                     X       XXX          |
+  23.250  |      |                                                  X    X X  X  X          |
+  21.500  |      |                                     X            XX      X   XX          |
+  19.750  |      |                 X        X X     X    XXX  XXX XXX XXXXXXXXXXXX          |
+  18.000  |      |            X       XX X  XXXX XX  X XXXXXXXXXXXXXXXXXXXXXXXXXXX          |
+  16.250  |      |        X  X X XX X    XXXXX XXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXX          |
+  14.500  |      |XX  X X  XXXXX XXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX      *** |
+  12.750  |      |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX***********    |
+  11.000  |      |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX**********XXXXX          |
+   9.250  |      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX***********XXXXXXXXXXXXXXX          |
+   7.500  |      XXXXXXXXXXXXXXXXXXXXXXXXXXXX***********XXXXXXXXXXXXXXXXXXXXXXXXXX          |
+   5.750  |      XXXXXXXXXXXXXXXXX***********XXXXXX.------------------.XXXXXXXXXXX          |
+   4.000  |      XXXXXX***********XXXXXXXXXXXXXXXXX| y = 0.51x + 2.32 |XXXXXXXXXXX          |
+   2.250  | ***********XXXXXXXXXXXXXXXXXXXXXXXXXXXX'------------------'XX XXXX XX           |
+   0.500  |*-----XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-XX--------X---------- |
+  -1.250  |      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XX XXXXX  X      X                 |
+  -3.000  |      XXXXXXXXXXXXXXXXXXXXXX XXXXXXX X XXX    X    X  XX                         |
+  -4.750  |      |XXXXXXXXXXXX XXXXXXX  X    X     X X    X                                 |
+  -6.500  |      XXXXXXXXXXX X  X   X     X        X        X                               |
+  -8.250  |      |  XXX      X                                                              |
+ -10.000  |______|_____X____________________________________________________________________|
+           |-2.000   |1.125    |4.250    |7.375    |10.500   |13.625   |16.750   |19.875
 
 Type < > ^ v + - to pan and zoom the graph. Current scaling: 1.00
 _
@@ -90,12 +90,12 @@ Entering a combination of `< > ^ v + -` can be used to control the plot view.
 ### Command Line Arguments
 This program accepts command line options to configure how it runs, such as using a different data file, changing the console display height and width of the ASCII art plotting.
 
-| Option    | Description                                   | Default Value | Example           |
-|:----:     |:----                                          |:----          |:-----             |
-| `-f`      | Name of the data file                         | Group1_8.txt  | `-f Group9_15.txt`|
-| `-l`      | Amount of lines to scan in the data file      | 10000         | `-l 1000`         |
-| `-c`      | Columns of the console for the ASCII plotting  | 100           | `-c 200`          |
-| `-r`      | Rows of the console for the ASCII plotting    | 20            | `-r 40`           |  
+| Option    | Description                                   | Type      | Example           | Default value   |
+|:----:     |:----                                          | :----:    |:-----             |:----            |
+| `-f`      | Name of the data file                         | string    | `-f Group9_15.txt`| Group1_8.txt    |
+| `-l`      | Amount of lines to scan in the data file      | int       | `-l 1000`         | 10000           |
+| `-c`      | Columns of the console for the ASCII plotting | int       | `-c 200`          | 80              |
+| `-r`      | Rows of the console for the ASCII plotting    | int       | `-r 40`           | 20              |
 
 So for example to execute the program with the data file `Group9_15.txt` with a maximised console which gives about 200 columns and 50 rows of spacing to plot the ASCII graph:  
 

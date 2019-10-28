@@ -17,7 +17,7 @@ int hasGNUPlot()
 
     if (pipe != NULL)
     {
-        if (pclose(pipe) == 0) // Test if GNU plot has opened and then closed successfully. As so far on Windows, the popen will still return a non null pointer even if the process is not found.
+        if (pclose(pipe) == 0) // Test if GNU plot has opened and then closed successfully. As so far on Windows and Raspbian, the popen will still return a non null pointer even if the process is not found.
         {
             return 1;
         }

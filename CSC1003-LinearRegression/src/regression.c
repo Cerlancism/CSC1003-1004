@@ -146,7 +146,7 @@ void initConfig()
     sprintf(config.fileName, "%s", "Group1_8.txt");
     config.lineCount = 10000;
     config.consoleHeight = 20;
-    config.consoleWidth = 100;
+    config.consoleWidth = 80;
 }
 
 // Process command line arguments to configure the program configurations if there are any
@@ -157,19 +157,19 @@ void parseCommandLine(int argc, char **argv)
     {
         switch (opt)
         {
-        case 'f':
+        case 'f': // Name of data file
             sprintf(config.fileName, "%s", optarg);
             break;
-        case 'l':
+        case 'l': // Lines to scan for the data file
             sscanf(optarg, "%d", &config.lineCount);
             break;
-        case 'r':
+        case 'r': // Number of console rows to allocate for the ASCII Art plotting
             sscanf(optarg, "%d", &config.consoleHeight);
             break;
-        case 'c':
+        case 'c': // Number of console columns to allocate for the ASCII Art plotting
             sscanf(optarg, "%d", &config.consoleWidth);
             break;
-        case 'h':
+        case 'h': // Show a simple help message showing these configurable options
             printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n");
             exit(0);
             break;
@@ -238,21 +238,16 @@ int main(int argc, char **argv)
         printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
     }
 
-    controlChar = '\0';
-
     while (1)
     {
-        if (controlChar == '\n' || controlChar == '\0')
-        {
-            controlChar = getchar();
-            navigate(&controlChar, &viewX, &viewY, &scale);
-            continue;
-        }
         controlChar = getchar();
-        navigate(&controlChar, &viewX, &viewY, &scale);
-        system(CLEARCLS); // Clear console screen
-        displayPlot(m, c, viewX, viewY, scale, minY, maxY);
-        printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+
+        if (navigate(&controlChar, &viewX, &viewY, &scale))
+        {
+            system(CLEARCLS); // Clear console screen
+            displayPlot(m, c, viewX, viewY, scale, minY, maxY);
+            printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+        }
     }
 
     return 0;
