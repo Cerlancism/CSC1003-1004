@@ -219,12 +219,10 @@ int main(int argc, char **argv)
     /* Use function and calculate regression line and get respective values */
     getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY);
     /* Print out of all the respective important values */
-    printf("Min Y: %f , Max Y: %f \n", minY, maxY);
     printf("y = %f x + %f \n", m, c);
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
-    printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
 
     float scale = 1;
     float viewX = -2;
@@ -265,6 +263,5 @@ int main(int argc, char **argv)
             printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
         }
     }
-
     return 0;
 }
