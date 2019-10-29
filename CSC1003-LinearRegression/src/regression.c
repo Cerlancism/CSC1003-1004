@@ -148,13 +148,13 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     }
 
     // Show a label in the graph
-    char equationLable[30];
-    float lablePositionX = xStart + xLength / 2;
-    sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
-    float yTop = m * lablePositionX + c - yToConsoleStep * 2, yMid = m * lablePositionX + c - yToConsoleStep * 1, yBot = m * lablePositionX + c - yToConsoleStep * 3;
-    plotter_printCoord(equationLable, &lablePositionX, &yTop); // Print Equation lable on middle of line graph.
-    plotter_printCoord(".------------------.", &lablePositionX, &yMid);
-    plotter_printCoord("'------------------'", &lablePositionX, &yBot);
+    char equationLabel[30];
+    float labelPositionX = xStart + xLength / 2;
+    sprintf(equationLabel, "| y = %.2fx + %.2f |", m, c);
+    float yTop = m * labelPositionX + c - yToConsoleStep * 2, yMid = m * labelPositionX + c - yToConsoleStep * 1, yBot = m * labelPositionX + c - yToConsoleStep * 3;
+    plotter_printCoord(equationLabel, &labelPositionX, &yTop); // Print Equation label on middle of line graph.
+    plotter_printCoord(".------------------.", &labelPositionX, &yMid);
+    plotter_printCoord("'------------------'", &labelPositionX, &yBot);
 
     // Print the graph to the console
     plotter_render();
