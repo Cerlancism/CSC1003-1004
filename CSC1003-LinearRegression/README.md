@@ -2,7 +2,10 @@
 **__Linear Regression__**
 
 ## Problem Definition
-TODO
+1.	Open the dataset file and extract the respective observation data point (x1, y1), (x2, y2), (x3, y3)…(x10,000, y10,000) into array set.
+2.	Write a function to perform a linear regression analysis and fits a straight line equation in the form of  y = mx + c to the set of observations (x1, y1), (x2, y2), (x3, y3)…(x10,000, y10,000). It should also compute the correlation coefficient, the coefficient of determination and the standard error of the estimate.
+3.	The output program should plot the 10,000 points in the x, y plane and draw the estimated straight-line equation that will superimpose on these 10,000 points. The output program shall also print the results of the equation of the estimated straight line, correlation coefficient, coefficient of determination and standard error of the estimate.
+
 
 ## Problem Analysis
 TODO
