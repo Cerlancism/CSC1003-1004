@@ -147,7 +147,7 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
         plotter_printCoord("*", &x, &y);
     }
 
-    // Show a lable in the graph
+    // Show a label in the graph
     char equationLable[30];
     float lablePositionX = xStart + xLength / 2;
     sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
@@ -214,7 +214,6 @@ int main(int argc, char **argv)
     /* Declare all the float variables for gradient, constant, etc... */
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f;
     /* char grid[SCALE][SCALE] = {" "}; */
-    float maxX = 0.001f;
     float minY = 0.0f;
     float maxY = 0.0f;
     /* Use function and calculate regression line and get respective values */
@@ -225,7 +224,6 @@ int main(int argc, char **argv)
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
-    printf(" %.3f \n", maxX);
     printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
 
     float scale = 1;
