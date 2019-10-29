@@ -22,6 +22,12 @@
 
 #define LINE_BUFFER_SIZE 30
 
+/*
+  \struct coord2D
+  \brief A struct object for storing x and y coordinates
+  \var float x-coordinate value
+  \var float y-coordinate value
+ */
 typedef struct coord2D
 {
     float x;
@@ -39,35 +45,51 @@ typedef struct configuration
 } Configuration;
 
 Configuration config;
-
+/*
+ \fn getRegressLine
+ \brief Function for reading input file and calculating regression line
+ \param file Pointer to the file stream
+ \param m Pointer to the regression line's gradient float value
+ \param c Pointer to the regression line's constant float value
+ \param r Pointer to the correlation coefficient float value
+ \param rr Pointer to the coefficient of determination float value
+ \param standErrOfEstimate Pointer to standard error of estimate float value
+ \param minY Pointer to minimum Y float value
+ \param maxY Pointer to maximum Y float value
+*/
 void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY)
 {
+    /* Declare and intialize line buffer, index as iterator for all lines in  */
+    /* in stream file, summation of X, Y, X Square, Y Square, XY, YPrime and  */
+    /* y - y' */
     char line_buf[LINE_BUFFER_SIZE];
     size_t index = 0;
-    float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f, sumYY = 0.0f, sumXY = 0.0f, yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
-    FILE *fileStream = fopen(file, "r");
+    float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f;
+    float sumYY = 0.0f, sumXY = 0.0f;
+    float yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
+    FILE *fileStream = fopen(file, "r"); /* Open file with read permission*/
 
-    if (fileStream == NULL)
+    if (fileStream == NULL) /* If fail to open file, exit program. */
     {
         printf("Error openning file: %s\n", file);
         exit(0);
     }
-
+    /* At this point, file opened successfully, allocate SIZE no. coord2d objs*/
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
-    if (coordinates == NULL)
+    if (coordinates == NULL) /* If allocation memory fail, exit program. */
     {
         printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
-        exit(0);
+        exit(1);
     }
-
+    /* Read each line of the file and assign the float values to x and y */
     for (index = 0; (fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL) && (index < SIZE); index++)
     {
         sscanf(line_buf, "%f,%f", &coordinates[index].x, &coordinates[index].y);
     }
 
+    /* Calculating maxY, min y and all the summation values */
     for (index = 0; index < SIZE; ++index)
     {
-        //printf("Coordinate %lu : %f , %f \n", index, coordinates[index].x, coordinates[index].y);
         if (coordinates[index].y >= *maxY)
         {
             *maxY = coordinates[index].y;
@@ -82,7 +104,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         sumYY += coordinates[index].y * coordinates[index].y;
         sumXY += coordinates[index].x * coordinates[index].y;
     }
-
+    /* Calculate all the values based on formulas and assign to the pointees */
     *m = ((SIZE * sumXY) - (sumX * sumY)) / ((SIZE * sumXX) - (sumX * sumX));
     *c = (sumY - (*m * sumX)) / SIZE;
     *r = ((SIZE * sumXY) - (sumX * sumY)) / sqrt(((SIZE * sumXX) - (sumX * sumX)) * ((SIZE * sumYY) - (sumY * sumY)));
@@ -94,9 +116,9 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         yPrime = (*m) * (coordinates[index].x) + *c;
         yyPrimeDiffSum += (coordinates[index].y - yPrime) * (coordinates[index].y - yPrime);
     }
+    /* Caclulate standard error of estimate and assign to pointee */
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE));
-    fclose(fileStream);
-    //free(coordinates);
+    fclose(fileStream); /* Close file as best practice */
 }
 
 void displayPlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
@@ -126,7 +148,7 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     }
 
     // Show a lable in the graph
-    char equationLable[20];
+    char equationLable[30];
     float lablePositionX = xStart + xLength / 2;
     sprintf(equationLable, "| y = %.2fx + %.2f |", m, c);
     float yTop = m * lablePositionX + c - yToConsoleStep * 2, yMid = m * lablePositionX + c - yToConsoleStep * 1, yBot = m * lablePositionX + c - yToConsoleStep * 3;
@@ -146,7 +168,7 @@ void initConfig()
     sprintf(config.fileName, "%s", "Group1_8.txt");
     config.lineCount = 10000;
     config.consoleHeight = 20;
-    config.consoleWidth = 80;
+    config.consoleWidth = 60;
 }
 
 // Process command line arguments to configure the program configurations if there are any
@@ -189,24 +211,20 @@ int main(int argc, char **argv)
 {
     initConfig();
     parseCommandLine(argc, argv);
-
-    float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f; /* Regression line gradient and constant */
+    /* Declare all the float variables for gradient, constant, etc... */
+    float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f;
     /* char grid[SCALE][SCALE] = {" "}; */
     float maxX = 0.001f;
     float minY = 0.0f;
     float maxY = 0.0f;
+    /* Use function and calculate regression line and get respective values */
     getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY);
+    /* Print out of all the respective important values */
     printf("Min Y: %f , Max Y: %f \n", minY, maxY);
     printf("y = %f x + %f \n", m, c);
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
-    putchar(' ');
-    for (int i = 0; i < SCALE; ++i)
-    {
-        putchar('-');
-    }
-
     printf(" %.3f \n", maxX);
     printf(" x: %f , y: %f\n", (-0.0001f - c) / m, -0.0001f);
 
