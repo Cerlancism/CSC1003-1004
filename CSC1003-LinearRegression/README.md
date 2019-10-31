@@ -8,21 +8,10 @@
 
 
 ## Problem Analysis
-TODO
+
 
 ## Pseudo Code
-`regression`
-```
-TODO
-```
-`file opening`
-```
-TODO
-```
-`console plotting`
-```
-TODO
-```
+
 
 ## Source Code
 This assignment is written in ANSI C(C89).  
