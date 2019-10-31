@@ -45,7 +45,7 @@ static char *charRepeat(char character, unsigned int count)
 /* Prints a string of text on the plotter view port */
 static void printText(char *text, unsigned int posX, unsigned int posY)
 {
-    int textLenth;
+    int textLength;
     int i;
     char *line;
 
@@ -54,9 +54,9 @@ static void printText(char *text, unsigned int posX, unsigned int posY)
         return;
     }
 
-    textLenth = strlen(text);
+    textLength = strlen(text);
     line = _displayBuffer[posY];
-    for (i = 0; i < textLenth && (posX + i) < _bufferColumns; i++)
+    for (i = 0; i < textLength && (posX + i) < _bufferColumns; i++)
     {
         line[posX + i] = text[i];
     }
