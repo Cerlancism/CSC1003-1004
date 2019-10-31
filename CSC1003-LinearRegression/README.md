@@ -39,7 +39,7 @@ Main entry point: `regression.c`
 ## Compiling
 This is compiled and tested using GCC.  
 Open terminal in this directory:   
-> `gcc ./src/*c -o regression -lm`
+> `gcc ./src/*.c -o regression -lm`
 
 ### Platforms Supported
 - Windows
@@ -190,7 +190,7 @@ Configered tasks in `.vscode` folder. `F5` to debug with break points works on a
 Terminal can be tweaked to display smaller font size and more character buffers.  
 On Windows PowserShell, set screen width buffer to 1000 and font size of 5, then maximise window.
 
-Run the regression with options (type carefull as the font size is very small to see):
+Run the regression with options (type carefully as the font size is very small to see):
 > `./regression -r 200 -c 900`
 
 Expected output  
