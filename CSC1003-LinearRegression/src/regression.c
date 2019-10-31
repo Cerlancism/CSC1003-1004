@@ -117,7 +117,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         yyPrimeDiffSum += (coordinates[index].y - yPrime) * (coordinates[index].y - yPrime);
     }
     /* Caclulate standard error of estimate and assign to pointee */
-    *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE -2));
+    *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
     fclose(fileStream); /* Close file as best practice */
 }
 
