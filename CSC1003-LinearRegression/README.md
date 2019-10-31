@@ -27,13 +27,14 @@ TODO
 ## Source Code
 This assignment is written in ANSI C(C89).  
 All source files (`.c` `.h`) in `./src/` folder are originally written by the team.  
-They contain the algorithms for calculating the regression line equation, file operations, plotting graph as ASCII art on the console as well as an optional feature to open and plot the graph on a additional program called [GNU Plot]("http://www.gnuplot.info/").
+They contain the algorithms for calculating the regression line equation, file operations, plotting graph as ASCII art on the console as well as an optional feature to open and plot the graph on a additional program called [Gnuplot]("http://www.gnuplot.info/").
 
+Main entry point: `regression.c`
 ## Dependencies
 - C Standard Library
 - C Maths Library
 - unistd
-- GNU Plot (Optional)
+- Gnuplot (Optional)
 
 ## Compiling
 This is compiled and tested using GCC.  
@@ -104,10 +105,10 @@ So for example to execute the program with the data file `Group9_15.txt` with a 
 
 > `./regression -f Group9_15.txt -c 200 -r 50`
 
-### Additional Feature - Launching GNU Plot
-If the user has GNU Plot installed and added to the environment PATH, this program will automatically ask the user if to launch GNU Plot to display the graph.
+### Additional Feature - Launching Gnuplot 
+If the user has Gnuplot  installed and added to the environment PATH, this program will automatically ask the user if to launch Gnuplot to display the graph.
 
-> Executing the program with GNU Plot installed
+> Executing the program with Gnuplot installed
 ```
 File: Group1_8.txt, Lines: 10000, Console Plot Height: 20, Console Plot Width: 100
 -h to display command line options
@@ -116,20 +117,53 @@ y = 0.514091 x + 2.315605
 Correlation coefficient: 0.596192
 Coefficient of determination: 35.544506 %
 Standard error of estimate: 3.996875
-Looks like you have GNU Plot installed, do you want to open it? Y/N
+Looks like you have Gnuplot installed, do you want to open it? Y/N
 (This program will still alternatively plot on console as ASCII art)
 ```
-Entering `Y` will pop up an additional Window for GNU Plot.
-#### Installing GNU Plot
+Entering `Y` will pop up an additional Window for Gnuplot.  
+![With Gnuplot](./misc/console_and_gnuplot.png)
+#### Installing Gnuplot
 ##### Windows
-TODO
+1. Download the Gnuplot Installer at <https://sourceforge.net/projects/gnuplot/files/>  
+2. Before installing, close all applications especially those have close interaction with the system shell, such as Command Prompt and code editors.   
+3. Double click the Gnuplot installer.  
+![Gnuplot install](./misc/gnuplot_install_1.png)
+4. Read accept the agreement and click next with default options until **Select Additional Tasks** section.  
+![Gnuplot install](./misc/gnuplot_install_2.png)
+5. Scroll down and tick "Add application directory to your PATH environment variable".  
+![Gnuplot install](./misc/gnuplot_install_3.png)
+6. Click next and then complete the installation.
+
+After installation, open a terminal such as Command Prompt.  
+Run:  
+> `gnuplot`  
+
+Expected output:
+```
+        G N U P L O T
+        Version 5.2 patchlevel 7    last modified 2019-05-29
+
+        Copyright (C) 1986-1993, 1998, 2004, 2007-2018
+        Thomas Williams, Colin Kelley and many others
+
+        gnuplot home:     http://www.gnuplot.info
+        faq, bugs, etc:   type "help FAQ"
+        immediate help:   type "help"  (plot window: hit 'h')
+
+Terminal type is now 'wxt'
+Encoding set to 'cp1252'.
+gnuplot>_
+```
+This shows that the Gnuplot has properly installed and added to the system path variable.   
+
+If command is not recognised, restart Windows. If persists, install again make sure step 5 is performed.
 ##### MAC OS
 Press Command+Space and type Terminal and press enter/return key.
 
-If the user already have brew in his/her OS, you may skip this process.
-```
-Run in Terminal app:
+If the user already have brew in his/her OS, the user may skip this process.
 
+> Run in Terminal app:
+```
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
 
 and press enter/return key.
@@ -140,3 +174,24 @@ be displayed on screen, but the system would accept it. So just type your passwo
 Run:
 
 `brew install gnuplot`
+
+## Additional Project Facts
+### C89 Compliance
+The source code is warning free with ANSI C and strict checking compiler flags.  
+`gcc ./src/*.c -o regression -lm -ansi -Wall -Wextra -Werror -pedantic`
+
+### Version Control
+The team used git and GitHub for collaboration and version control.
+
+### Debug in VS Code
+Configered tasks in `.vscode` folder. `F5` to debug with break points works on any file.
+
+### Terminal Tweaks
+Terminal can be tweaked to display smaller font size and more character buffers.  
+On Windows PowserShell, set screen width buffer to 1000 and font size of 5, then maximise window.
+
+Run the regression with options (type carefull as the font size is very small to see):
+> `./regression -r 200 -c 900`
+
+Expected output  
+![Small Terminal Plotting](./misc/powershell_small_plotting.png)
