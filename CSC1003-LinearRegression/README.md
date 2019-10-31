@@ -95,7 +95,7 @@ So for example to execute the program with the data file `Group9_15.txt` with a 
 > `./regression -f Group9_15.txt -c 200 -r 50`
 
 ### Additional Feature - Launching Gnuplot 
-If the user has Gnuplot  installed and added to the environment PATH, this program will automatically ask the user if to launch Gnuplot to display the graph.
+If the user has Gnuplot  installed and added to the environment PATH, this program will automatically ask the user whether to launch Gnuplot to display the graph.
 
 > Executing the program with Gnuplot installed
 ```
