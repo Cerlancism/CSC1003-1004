@@ -1,4 +1,4 @@
-// Classic include guard
+/* Classic include guard */
 #ifndef PLOTTER_H
 #define PLOTTER_H
 

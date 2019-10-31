@@ -1,4 +1,4 @@
-// Classic include guard
+/* Classic include guard */
 #ifndef NAVIGATOR_H
 #define NAVIGATOR_H
 

@@ -11,13 +11,14 @@ http://www.gnuplot.info/
 
 #define GNU_PLOTH_PATH "gnuplot"
 
+/* Check the user's machine has GNU Plot intalled and runnable as a global process. */
 int hasGNUPlot()
 {
     FILE *pipe = popen(GNU_PLOTH_PATH, "w");
 
     if (pipe != NULL)
     {
-        if (pclose(pipe) == 0) // Test if GNU plot has opened and then closed successfully. As so far on Windows and Raspbian, the popen will still return a non null pointer even if the process is not found.
+        if (pclose(pipe) == 0) /* Test if GNU plot has opened and then closed successfully. As so far the popen will return a non null pointer even if the process is not found. */
         {
             return 1;
         }
@@ -32,13 +33,14 @@ int hasGNUPlot()
     }
 }
 
+/* Launch the GNU Plot application. */
 void gnu_plot(const char *datafile, float m, float c)
 {
     FILE *pipe = popen(GNU_PLOTH_PATH " -persistent", "w");
 
     if (pipe != NULL)
     {
-        fprintf(pipe, "set terminal wxt size 1280,720 persist\n");
+        fprintf(pipe, "set terminal qt size 1280,720\n");
         fprintf(pipe, "set xrange [-5:25]\n");
         fprintf(pipe, "set yrange [-15:35]\n");
         fprintf(pipe, "set style line 1 linecolor rgb '#0060ad' linetype 1 linewidth 1\n");

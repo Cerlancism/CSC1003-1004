@@ -1,13 +1,13 @@
-#include <stdio.h>  // IO operations console/file/string
-#include <math.h>   // pow round ceil floor
-#include <stdlib.h> // malloc free
-#include <unistd.h> // Parse cli options
+#include <stdio.h>  /* IO operations console/file/string */
+#include <math.h>   /* pow round ceil floor */
+#include <stdlib.h> /* malloc free */
+#include <unistd.h> /* Parse cli options */
 
-#include "plotter.h"    // For plotting the graph on console
-#include "gnuplotter.h" // For plotting the graph on gnu plot
-#include "navigator.h"  // For nagivating the plotted graph
+#include "plotter.h"    /* For plotting the graph on console */
+#include "gnuplotter.h" /* For plotting the graph on gnu plot */
+#include "navigator.h"  /* For nagivating the plotted graph */
 
-// system command to clear console
+/* system command to clear console */
 #ifdef _WIN32
 #define CLEARCLS "cls"
 #else
@@ -39,9 +39,9 @@ Coord2D *coordinates;
 typedef struct configuration
 {
     char fileName[128];
-    int lineCount;
-    int consoleHeight;
-    int consoleWidth;
+    unsigned int lineCount;
+    unsigned int consoleHeight;
+    unsigned int consoleWidth;
 } Configuration;
 
 Configuration config;
@@ -123,46 +123,47 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
 
 void displayPlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
 {
+    size_t i;
+    float x, lineStep, labelPositionX, yTop, yMid, yBot;
+    char equationLabel[30];
     float xStart = viewX * scale;
     float xLength = 25 * scale;
     float xEnd = xStart + xLength;
     float yStart = viewY * scale;
-    float yLength = ceilf(maxY - minY) * scale;
-    float yEnd = yStart + yEnd;
+    float yLength = ceil(maxY - minY) * scale;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
 
     plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
 
-    // Plot the noise
-    for (int i = 0; i < SIZE; i++)
+    /* Plot the noise */
+    for (i = 0; i < SIZE; i++)
     {
         plotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
     }
 
-    // Plot the line
-    float lineStep = xLength / PLOT_WIDTH;
-    for (float x = xStart; x < xEnd; x += lineStep)
+    /* Plot the line */
+    lineStep = xLength / PLOT_WIDTH;
+    for (x = xStart; x < xEnd; x += lineStep)
     {
         float y = m * x + c;
         plotter_printCoord("*", &x, &y);
     }
 
-    // Show a label in the graph
-    char equationLabel[30];
-    float labelPositionX = xStart + xLength / 2;
+    /* Show a label in the graph */
+    labelPositionX = xStart + xLength / 2;
     sprintf(equationLabel, "| y = %.2fx + %.2f |", m, c);
-    float yTop = m * labelPositionX + c - yToConsoleStep * 2, yMid = m * labelPositionX + c - yToConsoleStep * 1, yBot = m * labelPositionX + c - yToConsoleStep * 3;
-    plotter_printCoord(equationLabel, &labelPositionX, &yTop); // Print Equation label on middle of line graph.
+    yTop = m * labelPositionX + c - yToConsoleStep * 2, yMid = m * labelPositionX + c - yToConsoleStep * 1, yBot = m * labelPositionX + c - yToConsoleStep * 3;
+    plotter_printCoord(equationLabel, &labelPositionX, &yTop); /* Print Equation label on middle of line graph. */
     plotter_printCoord(".------------------.", &labelPositionX, &yMid);
     plotter_printCoord("'------------------'", &labelPositionX, &yBot);
 
-    // Print the graph to the console
+    /* Print the graph to the console */
     plotter_render();
-    // Release plotter buffer memory
+    /* Release plotter buffer memory */
     plotter_dispose();
 }
 
-// Initialise program configurations to default values
+/* Initialise program configurations to default values */
 void initConfig()
 {
     sprintf(config.fileName, "%s", "Group1_8.txt");
@@ -171,7 +172,7 @@ void initConfig()
     config.consoleWidth = 60;
 }
 
-// Process command line arguments to configure the program configurations if there are any
+/* Process command line arguments to configure the program configurations if there are any */
 void parseCommandLine(int argc, char **argv)
 {
     int opt;
@@ -179,19 +180,19 @@ void parseCommandLine(int argc, char **argv)
     {
         switch (opt)
         {
-        case 'f': // Name of data file
+        case 'f': /* Name of data file */
             sprintf(config.fileName, "%s", optarg);
             break;
-        case 'l': // Lines to scan for the data file
-            sscanf(optarg, "%d", &config.lineCount);
+        case 'l': /* Lines to scan for the data file */
+            sscanf(optarg, "%u", &config.lineCount);
             break;
-        case 'r': // Number of console rows to allocate for the ASCII Art plotting
-            sscanf(optarg, "%d", &config.consoleHeight);
+        case 'r': /* Number of console rows to allocate for the ASCII Art plotting */
+            sscanf(optarg, "%u", &config.consoleHeight);
             break;
-        case 'c': // Number of console columns to allocate for the ASCII Art plotting
-            sscanf(optarg, "%d", &config.consoleWidth);
+        case 'c': /* Number of console columns to allocate for the ASCII Art plotting */
+            sscanf(optarg, "%u", &config.consoleWidth);
             break;
-        case 'h': // Show a simple help message showing these configurable options
+        case 'h': /* Show a simple help message showing these configurable options */
             printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n");
             exit(0);
             break;
@@ -209,13 +210,19 @@ void parseCommandLine(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    initConfig();
-    parseCommandLine(argc, argv);
     /* Declare all the float variables for gradient, constant, etc... */
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f;
     /* char grid[SCALE][SCALE] = {" "}; */
     float minY = 0.0f;
     float maxY = 0.0f;
+
+    float scale, viewX, viewY;
+
+    char controlChar = '\0';
+
+    initConfig();
+    parseCommandLine(argc, argv);
+
     /* Use function and calculate regression line and get respective values */
     getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY);
     /* Print out of all the respective important values */
@@ -224,11 +231,9 @@ int main(int argc, char **argv)
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
 
-    float scale = 1;
-    float viewX = -2;
-    float viewY = floorf(minY);
-
-    char controlChar = '\0';
+    scale = 1;
+    viewX = -2;
+    viewY = floor(minY);
 
     if (hasGNUPlot())
     {
@@ -258,7 +263,7 @@ int main(int argc, char **argv)
 
         if (navigate(&controlChar, &viewX, &viewY, &scale))
         {
-            system(CLEARCLS); // Clear console screen
+            system(CLEARCLS); /* Clear console screen */
             displayPlot(m, c, viewX, viewY, scale, minY, maxY);
             printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
         }

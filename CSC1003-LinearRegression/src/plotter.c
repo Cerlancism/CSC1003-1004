@@ -9,18 +9,20 @@ Treats the console out like a canvas drawing ascii characters on position x and 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "mathsFallback.h"
 
 #define LEFT_PAD 10
 
-// Offset x buffer position relative the plot
-#define Print_Coord_X(x) (int)(LEFT_PAD + 1 + roundf(x))
-// Offset y buffer position relative the plot
-#define Print_Coord_Y(x) (int)(_bufferRows - 2 - roundf(x))
+/* Offset x buffer position relative the plot */
+#define Print_Coord_X(x) (int)(LEFT_PAD + 1 + fallback_roundf(x))
+/* Offset y buffer position relative the plot */
+#define Print_Coord_Y(x) (int)(_bufferRows - 2 - fallback_roundf(x))
 
-static int _bufferRows;
-static int _bufferColumns;
-static int _plotRows;
-static int _plotColumns;
+static unsigned int _bufferRows;
+static unsigned int _bufferColumns;
+static unsigned int _plotRows;
+static unsigned int _plotRows;
+static unsigned int _plotColumns;
 static float _xMultiplier;
 static float _xOffset;
 static float _yMultiplier;
@@ -30,52 +32,60 @@ static char **_displayBuffer;
 
 static char *charRepeat(char character, unsigned int count)
 {
+    size_t i;
     char *output = malloc(sizeof(char) * (count + 1));
     output[count] = '\0';
-    for (int i = 0; i < count; i++)
+    for (i = 0; i < count; i++)
     {
         output[i] = character;
     }
     return output;
 }
 
-// Prints a string of text on the plotter view port
+/* Prints a string of text on the plotter view port */
 static void printText(char *text, unsigned int posX, unsigned int posY)
 {
+    int textLenth;
+    int i;
+    char *line;
+
     if (posY > _bufferRows - 1)
     {
         return;
     }
 
-    int textLenth = strlen(text);
-    char *line = _displayBuffer[posY];
-    for (int i = 0; i < textLenth && (posX + i) < _bufferColumns; i++)
+    textLenth = strlen(text);
+    line = _displayBuffer[posY];
+    for (i = 0; i < textLenth && (posX + i) < _bufferColumns; i++)
     {
         line[posX + i] = text[i];
     }
 }
 
-// Prints a string on the plotter coordinate.
+/* Prints a string on the plotter coordinate. */
 void plotter_printCoord(char *text, const float *const x, const float *const y)
 {
     int plotX = Print_Coord_X((*x + _xOffset) / _xMultiplier);
     int plotY = Print_Coord_Y((*y + _yOffset) / _yMultiplier);
 
-    if ((plotY > 0) && (plotY <= (_plotRows + 1)) && (plotX > LEFT_PAD))
+    if ((plotY > 0) && (plotY <= ((int)_plotRows + 1)) && (plotX > LEFT_PAD))
     {
         printText(text, plotX, plotY);
     }
 }
 
-// Initialise the plotter display size. xLength and yLength to be positive.
-void plotter_init(int rows, int colums, float xStart, float xLength, float yStart, float yLength)
+/* Initialise the plotter display size. xLength and yLength to be positive. */
+void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xLength, float yStart, float yLength)
 {
+    char *emptyfill;
+    size_t i, y, x;
+    char *topBorder;
     puts("");
 
     if (xLength < 0 || yLength < 0)
     {
         puts("EXCEPTION: xLength and yLength must be positive.");
-        exit(0); // Exception occurs and kills program.
+        exit(0); /* Exception occurs and kills program. */
     }
 
     _bufferRows = rows + 3;
@@ -88,10 +98,10 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
     _xMultiplier = xLength / colums;
     _yMultiplier = yLength / rows;
 
-    // Allocate memory for display buffer.
+    /* Allocate memory for display buffer. */
     _displayBuffer = malloc(sizeof(char *) * _bufferRows);
-    char *emptyfill = charRepeat(' ', _bufferColumns);
-    for (int i = 0; i < _bufferRows; i++)
+    emptyfill = charRepeat(' ', _bufferColumns);
+    for (i = 0; i < _bufferRows; i++)
     {
         _displayBuffer[i] = malloc(sizeof(char) * (_bufferColumns + 1));
         printText(emptyfill, 0, i);
@@ -99,42 +109,41 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
     }
     free(emptyfill);
 
-    // Initialise an ASCII art box
-    char *topBorder = charRepeat('_', _bufferColumns - 2 - LEFT_PAD);
+    /* Initialise an ASCII art box */
+    topBorder = charRepeat('_', _bufferColumns - 2 - LEFT_PAD);
 
     printText(topBorder, 1 + LEFT_PAD, 0);
 
-    // Prints the y bar labling
-    for (int y = 1; y < _bufferRows - 1; y++)
+    /* Prints the y bar labling */
+    for (y = 1; y < _bufferRows - 1; y++)
     {
+        char lablePrint[10];
         printText("|", LEFT_PAD, y);
         printText("|", _bufferColumns - 1, y);
-
-        char lablePrint[10];
         sprintf(lablePrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
         printText(lablePrint, 1, y);
     }
 
     printText(topBorder, 1 + LEFT_PAD, _bufferRows - 2);
 
-    // Prints the x bar labling
-    for (int i = 0; (i + 1) < _plotColumns; i += 10)
+    /* Prints the x bar labling */
+    for (i = 0; (i + 1) < _plotColumns; i += 10)
     {
         char lablePrint[10];
         sprintf(lablePrint, "|%-7.3f", i * _xMultiplier + xStart);
         printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
     }
 
-    // Draw the x axis
-    for (int x = 0; x < _plotColumns; x++)
+    /* Draw the x axis */
+    for (x = 0; x < _plotColumns; x++)
     {
         printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
     }
 
-    // Draw the y axis
+    /* Draw the y axis */
     if (_xOffset > 0)
     {
-        for (int y = 0; y <= _plotRows; y++)
+        for (y = 0; y <= _plotRows; y++)
         {
             printText("|", Print_Coord_X(_xOffset / _xMultiplier), Print_Coord_Y(y));
         }
@@ -143,10 +152,11 @@ void plotter_init(int rows, int colums, float xStart, float xLength, float yStar
     free(topBorder);
 }
 
-// Display the plotter to console.
+/* Display the plotter to console. */
 void plotter_render()
 {
-    for (int i = 0; i < _bufferRows; i++)
+    size_t i;
+    for (i = 0; i < _bufferRows; i++)
     {
         puts(_displayBuffer[i]);
     }
@@ -155,7 +165,8 @@ void plotter_render()
 
 void plotter_dispose()
 {
-    for (int i = 0; i < _bufferRows; i++)
+    size_t i;
+    for (i = 0; i < _bufferRows; i++)
     {
         free(_displayBuffer[i]);
     }

@@ -7,13 +7,13 @@
 #define STEP_MID 0.1f
 #define STEP_SMALL 0.01f
 
-// Check if a float is close to a value based on the epsilon precision
+/* Check if a float is close to a value based on the epsilon precision */
 static int fuzzyEquals(const float a, const float b, const float epsilon)
 {
     return fabsf(a - b) <= epsilon;
 }
 
-// Returns 1 if something has changed, else 0
+/* Returns 1 if something has changed, else 0 */
 int navigate(const char *const controller, float *xAxis, float *yAxis, float *scale)
 {
     switch (*controller)
