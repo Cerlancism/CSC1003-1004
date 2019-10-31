@@ -71,7 +71,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
 
     if (fileStream == NULL) /* If fail to open file, exit program. */
     {
-        printf("Error openning file: %s\n", file);
+        printf("Error opening file: %s\n", file);
         exit(0);
     }
     /* At this point, file opened successfully, allocate SIZE no. coord2d objs*/
@@ -117,7 +117,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         yyPrimeDiffSum += (coordinates[index].y - yPrime) * (coordinates[index].y - yPrime);
     }
     /* Caclulate standard error of estimate and assign to pointee */
-    *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE)-2);
+    *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE -2));
     fclose(fileStream); /* Close file as best practice */
 }
 
@@ -196,7 +196,7 @@ void parseCommandLine(int argc, char **argv)
             exit(0);
             break;
         case '?':
-            printf("Unkown option -%c.\n", optopt);
+            printf("Unknown option -%c.\n", optopt);
             break;
         }
     }
