@@ -77,9 +77,8 @@ void plotter_printCoord(char *text, const float *const x, const float *const y)
 /* Initialise the plotter display size. xLength and yLength to be positive. */
 void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xLength, float yStart, float yLength)
 {
-    char *emptyfill;
+    char *emptyfill, *topBorder;
     size_t i, y, x;
-    char *topBorder;
     puts("");
 
     if (xLength < 0 || yLength < 0)

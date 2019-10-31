@@ -10,7 +10,7 @@
             "args": [
                 "-g",
                 "-o",
-                "${workspaceFolder}\\linear_regression_debug.exe",
+                "${workspaceFolder}\\linear_regression_debug",
                 "${workspaceFolder}\\src\\*.c",
             ],
             "options": {

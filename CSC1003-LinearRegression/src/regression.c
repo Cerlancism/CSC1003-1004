@@ -1,3 +1,9 @@
+/*
+regression.c
+
+The main entry point and regression computation point of the program.
+*/
+
 #include <stdio.h>  /* IO operations console/file/string */
 #include <math.h>   /* pow round ceil floor */
 #include <stdlib.h> /* malloc free */

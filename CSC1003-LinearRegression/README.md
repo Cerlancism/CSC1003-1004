@@ -97,7 +97,7 @@ This program accepts command line options to configure how it runs, such as usin
 |:----:     |:----                                          | :----:    |:-----             |:----            |
 | `-f`      | Name of the data file                         | string    | `-f Group9_15.txt`| Group1_8.txt    |
 | `-l`      | Amount of lines to scan in the data file      | int       | `-l 1000`         | 10000           |
-| `-c`      | Columns of the console for the ASCII plotting | int       | `-c 200`          | 80              |
+| `-c`      | Columns of the console for the ASCII plotting | int       | `-c 200`          | 60              |
 | `-r`      | Rows of the console for the ASCII plotting    | int       | `-r 40`           | 20              |
 
 So for example to execute the program with the data file `Group9_15.txt` with a maximised console which gives about 200 columns and 50 rows of spacing to plot the ASCII graph:  
