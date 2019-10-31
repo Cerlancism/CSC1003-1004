@@ -35,7 +35,7 @@ float fallback_roundf(float input)
     }
     else
     {
-        return (float)((input + 0.5));
+        return (float)((int)(input + 0.5));
     }
 #endif
 }
