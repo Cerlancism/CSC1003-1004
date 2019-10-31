@@ -113,24 +113,24 @@ void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xL
 
     printText(topBorder, 1 + LEFT_PAD, 0);
 
-    /* Prints the y bar labling */
+    /* Prints the y bar labelling */
     for (y = 1; y < _bufferRows - 1; y++)
     {
-        char lablePrint[10];
+        char labelPrint[10];
         printText("|", LEFT_PAD, y);
         printText("|", _bufferColumns - 1, y);
-        sprintf(lablePrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
-        printText(lablePrint, 1, y);
+        sprintf(labelPrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
+        printText(labelPrint, 1, y);
     }
 
     printText(topBorder, 1 + LEFT_PAD, _bufferRows - 2);
 
-    /* Prints the x bar labling */
+    /* Prints the x bar labelling */
     for (i = 0; (i + 1) < _plotColumns; i += 10)
     {
-        char lablePrint[10];
-        sprintf(lablePrint, "|%-7.3f", i * _xMultiplier + xStart);
-        printText(lablePrint, Print_Coord_X(i), _bufferRows - 1);
+        char labelPrint[10];
+        sprintf(labelPrint, "|%-7.3f", i * _xMultiplier + xStart);
+        printText(labelPrint, Print_Coord_X(i), _bufferRows - 1);
     }
 
     /* Draw the x axis */
