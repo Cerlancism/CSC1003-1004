@@ -8,10 +8,28 @@
 
 
 ## Problem Analysis
+1. To find the slope of the line, m, the equation is m=  (N  (xy)-  x  y )/(N  (x^2 )- ( x)^2 ) 
+   where N is the number of pairs (x,y) in this case it is 10,000.
+2. To find the y-intercept, c, the equation is c=  ( y-m  x)/N 
+3. To find the Estimated Straight Line, the equation is y=mx+c
+4. To find the Correlation Coefficient, r, the equation is r=  (Nxy-(x)(y))/√([Nx^2-(x)^2][Ny^2-(y)^2])
+5. To find the Coefficient of Determination, the equation is r^2
+6. Assuming this dataset is a sample size to find the Standard Error of Estimate, s, the equation is s= √((〖(y-y^')〗^2/(N-2)))
 
+Input Variable
+        Reading the 10,000 pairs of (x,y) from the dataset file by opening and extract it into the elements, coordinates (float coordinates[] )
 
-## Pseudo Code
+Process Variable
+	1. The summation of all data x_1…x_10,000, sumX (float sumX)
+	2. The summation of all data y_1…y_10,000, sumY (float sumY)
+	3. The summation of all data x_1^2…x_10,000^2, sumXX (float sumXX)
+	4. The summation of all data y_1^2…y_10,000^2, sumYY(float sumYY)
+	5. The summation of all data 〖xy〗_1…〖xy〗_10,000, sumXY (float sumXY)
+	6. The summation of all data y_1-y_1^'…y_10,000-y_10,000^', yyPrimeDiffSum  (float yyPrimeDiffSum)
 
+Output Variable
+	1. The Estimated Straight Line, Correlation Coefficient, Coefficient of Determination, Standard Error of Estimate, y = mx + c, r, rr, standErrOfEstimate (float m,   c,r,rr,standErrOfEstimate)
+	2. Plotting of the 10,000 points, (x,y) and Estimated Straight-Line using CMD and/or GNU plot
 
 ## Source Code
 This assignment is written in ANSI C(C89).  
@@ -95,7 +113,7 @@ So for example to execute the program with the data file `Group9_15.txt` with a 
 > `./regression -f Group9_15.txt -c 200 -r 50`
 
 ### Additional Feature - Launching Gnuplot 
-If the user has Gnuplot  installed and added to the environment PATH, this program will automatically ask the user if to launch Gnuplot to display the graph.
+If the user has Gnuplot  installed and added to the environment PATH, this program will automatically ask the user whether to launch Gnuplot to display the graph.
 
 > Executing the program with Gnuplot installed
 ```
