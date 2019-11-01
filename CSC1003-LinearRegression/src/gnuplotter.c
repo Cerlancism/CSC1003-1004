@@ -19,7 +19,7 @@ int hasGNUPlot()
     if (pipe != NULL)
     {
         if (pclose(pipe) == 0) /* Test if GNU plot has opened and then closed successfully.*/
-        {                       /*As so far the popen will return a non null pointer even if the process is not found. */
+        {                      /*As so far the popen will return a non null pointer even if the process is not found. */
             return 1;
         }
         else
@@ -57,12 +57,14 @@ void gnu_plot(const char *datafile, float m, float c)
         printf("Failed to open GNU Plot!\n");
     }
 
-    if (pclose(pipe) != 0)
-    {
-        printf("Error in executing GNU Plot!\n");
-    }
-    else
-    {
-        printf("GNU run was successful!\n");
-    }
+    fflush(pipe);
+
+    // if (pclose(pipe) != 0)
+    // {
+    //     printf("Error in executing GNU Plot!\n");
+    // }
+    // else
+    // {
+    //     printf("GNU run was successful!\n");
+    // }
 }
