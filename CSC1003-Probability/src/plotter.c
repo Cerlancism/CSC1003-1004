@@ -9,14 +9,15 @@ Treats the console out like a canvas drawing ascii characters on position x and 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
 #include "mathsFallback.h"
 
 #define LEFT_PAD 10
 
 /* Offset x buffer position relative the plot */
-#define Print_Coord_X(x) (int)(LEFT_PAD + 1 + fallback_roundf(x))
+#define Print_Coord_X(x) (int)(LEFT_PAD + 1 + roundf(x))
 /* Offset y buffer position relative the plot */
-#define Print_Coord_Y(x) (int)(_bufferRows - 2 - fallback_roundf(x))
+#define Print_Coord_Y(x) (int)(_bufferRows - 2 - roundf(x))
 
 static unsigned int _bufferRows;
 static unsigned int _bufferColumns;

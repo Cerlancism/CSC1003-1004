@@ -6,8 +6,6 @@ mathsFallback.h provides some maths functions that is not strictly available in 
 #ifndef MATHSFallback_h
 #define MATHSFallback_h
 
-#include <math.h>
-
 #if defined(__STDC__)
 #define PREDEF_STANDARD_C_1989
 #if defined(__STDC_VERSION__)
@@ -24,11 +22,9 @@ mathsFallback.h provides some maths functions that is not strictly available in 
 #endif
 #endif
 
-float fallback_roundf(float input)
+#ifndef PREDEF_STANDARD_C_1990
+float roundf(float input)
 {
-#ifdef PREDEF_STANDARD_C_1990
-    return roundf(input);
-#else
     if (input < 0.0)
     {
         return (float)((int)(input - 0.5));
@@ -37,7 +33,7 @@ float fallback_roundf(float input)
     {
         return (float)((int)(input + 0.5));
     }
-#endif
 }
+#endif
 
 #endif

@@ -59,6 +59,7 @@ void gnu_plot(const char *datafile, float m, float c)
 
     fflush(pipe);
 
+    /*
     // if (pclose(pipe) != 0)
     // {
     //     printf("Error in executing GNU Plot!\n");
@@ -67,4 +68,5 @@ void gnu_plot(const char *datafile, float m, float c)
     // {
     //     printf("GNU run was successful!\n");
     // }
+    */
 }
