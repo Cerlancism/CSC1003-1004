@@ -10,7 +10,7 @@ Treats the console out like a canvas drawing ascii characters on position x and 
 #include <string.h>
 #include <math.h>
 
-#include "mathsFallback.h"
+#include "mathsFallback.h" /* roundf */
 
 #define LEFT_PAD 10
 
@@ -31,24 +31,22 @@ static float _yOffset;
 
 static char **_displayBuffer;
 
-static char *charRepeat(char character, unsigned int count)
+static void charRepeat(char *buffer, char character, unsigned int count)
 {
     size_t i;
-    char *output = malloc(sizeof(char) * (count + 1));
-    output[count] = '\0';
+    buffer[count] = '\0';
     for (i = 0; i < count; i++)
     {
-        output[i] = character;
+        buffer[i] = character;
     }
-    return output;
 }
 
 /* Prints a string of text on the plotter view port */
 static void printText(char *text, unsigned int posX, unsigned int posY)
 {
+    char *line;
     int textLength;
     int i;
-    char *line;
 
     if (posY > _bufferRows - 1)
     {
@@ -78,8 +76,8 @@ void plotter_printCoord(char *text, const float *const x, const float *const y)
 /* Initialise the plotter display size. xLength and yLength to be positive. */
 void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xLength, float yStart, float yLength)
 {
-    char *emptyfill, *topBorder;
     size_t i, y, x;
+    char *emptyfill, *topBorder;
     puts("");
 
     if (xLength < 0 || yLength < 0)
@@ -100,7 +98,8 @@ void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xL
 
     /* Allocate memory for display buffer. */
     _displayBuffer = malloc(sizeof(char *) * _bufferRows);
-    emptyfill = charRepeat(' ', _bufferColumns);
+    emptyfill = malloc(sizeof(char) * (_bufferColumns + 1));
+    charRepeat(emptyfill, ' ', _bufferColumns);
     for (i = 0; i < _bufferRows; i++)
     {
         _displayBuffer[i] = malloc(sizeof(char) * (_bufferColumns + 1));
@@ -110,7 +109,8 @@ void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xL
     free(emptyfill);
 
     /* Initialise an ASCII art box */
-    topBorder = charRepeat('_', _bufferColumns - 2 - LEFT_PAD);
+    topBorder = malloc(sizeof(char) * (_bufferColumns - 2 - LEFT_PAD + 1));
+    charRepeat(topBorder, '_', _bufferColumns - 2 - LEFT_PAD);
 
     printText(topBorder, 1 + LEFT_PAD, 0);
 
