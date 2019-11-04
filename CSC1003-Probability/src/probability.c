@@ -9,9 +9,9 @@ The main entry point and regression, pdf computation point of the program.
 #include <stdlib.h> /* malloc free */
 #include <unistd.h> /* Parse cli options */
 
-#include "plotter.h"    /* For plotting the graph on console */
-#include "gnuplotter.h" /* For plotting the graph on gnu plot */
-#include "navigator.h"  /* For nagivating the plotted graph */
+#include "consoleplotter.h" /* For plotting the graph on console */
+#include "gnuplotter.h"     /* For plotting the graph on gnu plot */
+#include "navigator.h"      /* For nagivating the plotted graph */
 
 /* system command to clear console */
 #ifdef _WIN32
@@ -139,12 +139,12 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     float yLength = ceil(maxY - minY) * scale;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
 
-    plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
+    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
 
     /* Plot the noise */
     for (i = 0; i < SIZE; i++)
     {
-        plotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
+        consoleplotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
     }
 
     /* Plot the line */
@@ -152,21 +152,22 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     for (x = xStart; x < xEnd; x += lineStep)
     {
         float y = m * x + c;
-        plotter_printCoord("*", &x, &y);
+        consoleplotter_printCoord("*", &x, &y);
     }
 
     /* Show a label in the graph */
     labelPositionX = xStart + xLength / 2;
     sprintf(equationLabel, "| y = %.2fx + %.2f |", m, c);
     yTop = m * labelPositionX + c - yToConsoleStep * 2, yMid = m * labelPositionX + c - yToConsoleStep * 1, yBot = m * labelPositionX + c - yToConsoleStep * 3;
-    plotter_printCoord(equationLabel, &labelPositionX, &yTop); /* Print Equation label on middle of line graph. */
-    plotter_printCoord(".------------------.", &labelPositionX, &yMid);
-    plotter_printCoord("'------------------'", &labelPositionX, &yBot);
+    consoleplotter_printCoord(equationLabel, &labelPositionX, &yTop); /* Print Equation label on middle of line graph. */
+    consoleplotter_printCoord(".------------------.", &labelPositionX, &yMid);
+    consoleplotter_printCoord("'------------------'", &labelPositionX, &yBot);
 
     /* Print the graph to the console */
-    plotter_render();
+    consoleplotter_render();
     /* Release plotter buffer memory */
-    plotter_dispose();
+    /* consoleplotter_dispose(); */
+    consoleplotter_clear();
 }
 
 /* Initialise program configurations to default values */
@@ -241,7 +242,7 @@ int main(int argc, char **argv)
     viewX = -2;
     viewY = floor(minY);
 
-    if (hasGNUPlot())
+    if (gnuplot_exits())
     {
         printf("Looks like you have GNU Plot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
         controlChar = getchar();
@@ -249,7 +250,7 @@ int main(int argc, char **argv)
         if (controlChar == 'Y' || controlChar == 'y')
         {
             printf("Exit GNU Plot. Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
-            gnu_plot(config.fileName, m, c);
+            gnuplot_show(config.fileName, m, c);
         }
         else
         {

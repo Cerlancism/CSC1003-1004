@@ -185,7 +185,7 @@ Run:
 ## Additional Project Facts
 ### C89 Compliance
 The source code is warning free with ANSI C and strict checking compiler flags.  
-`gcc ./src/*.c -o regression -lm -ansi -Wall -Wextra -Werror -pedantic`
+`gcc ./src/*.c -o probability -lm -ansi -Wall -Wextra -Werror -pedantic`
 
 ### Version Control
 The team used git and GitHub for collaboration and version control.

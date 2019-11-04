@@ -1,6 +1,6 @@
 /*
 
-plotter.c
+consoleplotter.c
 Treats the console out like a canvas drawing ascii characters on position x and y.
 
 */
@@ -33,12 +33,8 @@ static char **_displayBuffer;
 
 static void charRepeat(char *buffer, char character, unsigned int count)
 {
-    size_t i;
-    buffer[count] = '\0';
-    for (i = 0; i < count; i++)
-    {
-        buffer[i] = character;
-    }
+    memset(buffer, character, count * sizeof(char));
+    buffer[count - 1] = '\0';
 }
 
 /* Prints a string of text on the plotter view port */
@@ -53,31 +49,39 @@ static void printText(char *text, unsigned int posX, unsigned int posY)
         return;
     }
 
-    textLength = strlen(text);
     line = _displayBuffer[posY];
-    for (i = 0; i < textLength && (posX + i) < _bufferColumns; i++)
+
+    if (posX < _bufferColumns && *(text + 1) == '\0') /* if just one character to print */
     {
-        line[posX + i] = text[i];
+        line[posX] = text[0];
+    }
+    else
+    {
+        textLength = strlen(text);
+        for (i = 0; i < textLength && (posX + i) < _bufferColumns; i++)
+        {
+            line[posX + i] = text[i];
+        }
     }
 }
 
 /* Prints a string on the plotter coordinate. */
-void plotter_printCoord(char *text, const float *const x, const float *const y)
+void consoleplotter_printCoord(char *text, const float *const x, const float *const y)
 {
     int plotX = Print_Coord_X((*x + _xOffset) / _xMultiplier);
     int plotY = Print_Coord_Y((*y + _yOffset) / _yMultiplier);
 
-    if ((plotY > 0) && (plotY <= ((int)_plotRows + 1)) && (plotX > LEFT_PAD))
+    if ((plotY > 0) && (plotY <= ((int)_plotRows + 1)) && (plotX > LEFT_PAD) && plotX < (_bufferColumns - 1))
     {
         printText(text, plotX, plotY);
     }
 }
 
 /* Initialise the plotter display size. xLength and yLength to be positive. */
-void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xLength, float yStart, float yLength)
+void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, float xLength, float yStart, float yLength)
 {
     size_t i, y, x;
-    char *emptyfill, *topBorder;
+    char *topBorder;
     puts("");
 
     if (xLength < 0 || yLength < 0)
@@ -97,20 +101,20 @@ void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xL
     _yMultiplier = yLength / rows;
 
     /* Allocate memory for display buffer. */
-    _displayBuffer = malloc(sizeof(char *) * _bufferRows);
-    emptyfill = malloc(sizeof(char) * (_bufferColumns + 1));
-    charRepeat(emptyfill, ' ', _bufferColumns);
-    for (i = 0; i < _bufferRows; i++)
+    if (!_displayBuffer)
     {
-        _displayBuffer[i] = malloc(sizeof(char) * (_bufferColumns + 1));
-        printText(emptyfill, 0, i);
-        _displayBuffer[i][_bufferColumns] = '\0';
+        _displayBuffer = malloc(sizeof(char *) * _bufferRows);
+        for (i = 0; i < _bufferRows; i++)
+        {
+            _displayBuffer[i] = malloc(sizeof(char) * (_bufferColumns + 1));
+            memset(_displayBuffer[i], ' ', (sizeof(char) * (_bufferColumns)));
+            _displayBuffer[i][_bufferColumns] = '\0';
+        }
     }
-    free(emptyfill);
 
     /* Initialise an ASCII art box */
     topBorder = malloc(sizeof(char) * (_bufferColumns - 2 - LEFT_PAD + 1));
-    charRepeat(topBorder, '_', _bufferColumns - 2 - LEFT_PAD);
+    charRepeat(topBorder, '_', _bufferColumns - 2 - LEFT_PAD + 1);
 
     printText(topBorder, 1 + LEFT_PAD, 0);
 
@@ -153,7 +157,7 @@ void plotter_init(unsigned int rows, unsigned int colums, float xStart, float xL
 }
 
 /* Display the plotter to console. */
-void plotter_render()
+void consoleplotter_render()
 {
     size_t i;
     for (i = 0; i < _bufferRows; i++)
@@ -163,7 +167,16 @@ void plotter_render()
     puts("");
 }
 
-void plotter_dispose()
+void consoleplotter_clear()
+{
+    size_t i;
+    for (i = 0; i < _bufferRows; i++)
+    {
+        memset(_displayBuffer[i], ' ', sizeof(char) * _bufferColumns);
+    }
+}
+
+void consoleplotter_dispose()
 {
     size_t i;
     for (i = 0; i < _bufferRows; i++)
@@ -171,4 +184,6 @@ void plotter_dispose()
         free(_displayBuffer[i]);
     }
     free(_displayBuffer);
+
+    _displayBuffer = NULL;
 }

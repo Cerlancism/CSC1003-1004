@@ -24,7 +24,7 @@ mathsFallback.h provides some maths functions that is not strictly available in 
 #endif
 #endif
 
-#ifndef PREDEF_STANDARD_C_1990
+#ifndef PREDEF_STANDARD_C_1990 /* roundf only exits after c99*/
 float roundf(float input)
 {
     if (input < 0.0)
