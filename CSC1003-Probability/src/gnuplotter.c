@@ -3,6 +3,7 @@
 gnuplotter.c
 Adapter for GNU Plot command line interface 
 http://www.gnuplot.info/
+http://www.gnuplotting.org/
 
 */
 
@@ -12,14 +13,14 @@ http://www.gnuplot.info/
 #define GNU_PLOTH_PATH "gnuplot"
 
 /* Check the user's machine has GNU Plot intalled and runnable as a global process. */
-int gnuplot_exits()
+int gnuplotter_exits()
 {
     FILE *pipe = popen(GNU_PLOTH_PATH, "w");
 
     if (pipe != NULL)
     {
         if (pclose(pipe) == 0) /* Test if GNU plot has opened and then closed successfully.*/
-        {                      /*As so far the popen will return a non null pointer even if the process is not found. */
+        {                      /* As so far the popen will return a non null pointer even if the process is not found. */
             return 1;
         }
         else
@@ -34,7 +35,7 @@ int gnuplot_exits()
 }
 
 /* Launch the GNU Plot application. */
-void gnuplot_show(const char *datafile, float m, float c)
+void gnuplotter_show(const char *datafile, float m, float c)
 {
     FILE *pipe = popen(GNU_PLOTH_PATH " -persistent", "w");
 

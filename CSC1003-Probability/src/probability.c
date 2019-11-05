@@ -166,8 +166,8 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     /* Print the graph to the console */
     consoleplotter_render();
     /* Release plotter buffer memory */
-    /* consoleplotter_dispose(); */
-    consoleplotter_clear();
+    consoleplotter_dispose();
+    /* consoleplotter_clear(); */
 }
 
 /* Initialise program configurations to default values */
@@ -242,37 +242,37 @@ int main(int argc, char **argv)
     viewX = -2;
     viewY = floor(minY);
 
-    if (gnuplot_exits())
+    if (gnuplotter_exits())
     {
         printf("Looks like you have GNU Plot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
         controlChar = getchar();
         displayPlot(m, c, viewX, viewY, scale, minY, maxY);
         if (controlChar == 'Y' || controlChar == 'y')
         {
-            printf("Exit GNU Plot. Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
-            gnuplot_show(config.fileName, m, c);
+            printf("Exit GNU Plot. Type W A S D + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
+            gnuplotter_show(config.fileName, m, c);
         }
         else
         {
-            printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+            printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
         }
     }
     else
     {
         printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
         displayPlot(m, c, viewX, viewY, scale, minY, maxY);
-        printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+        printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
     }
 
     while (1)
     {
         controlChar = getchar();
 
-        if (navigate(&controlChar, &viewX, &viewY, &scale))
+        if (navigate(&controlChar, &viewX, &viewY, &scale, &config.consoleWidth, &config.consoleHeight))
         {
             system(CLEARCLS); /* Clear console screen */
             displayPlot(m, c, viewX, viewY, scale, minY, maxY);
-            printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+            printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
         }
     }
     return 0;

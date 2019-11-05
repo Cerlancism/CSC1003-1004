@@ -10,7 +10,7 @@ Treats the console out like a canvas drawing ascii characters on position x and 
 #include <string.h>
 #include <math.h>
 
-#include "mathsFallback.h" /* roundf */
+#include "mathsUtils.h" /* roundf */
 
 #define LEFT_PAD 10
 
@@ -71,7 +71,7 @@ void consoleplotter_printCoord(char *text, const float *const x, const float *co
     int plotX = Print_Coord_X((*x + _xOffset) / _xMultiplier);
     int plotY = Print_Coord_Y((*y + _yOffset) / _yMultiplier);
 
-    if ((plotY > 0) && (plotY <= ((int)_plotRows + 1)) && (plotX > LEFT_PAD) && plotX < (_bufferColumns - 1))
+    if ((plotY > 0) && (plotY <= ((int)_plotRows + 1)) && (plotX > LEFT_PAD) && plotX < ((int)_bufferColumns - 1))
     {
         printText(text, plotX, plotY);
     }

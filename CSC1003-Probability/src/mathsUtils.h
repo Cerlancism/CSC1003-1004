@@ -1,12 +1,12 @@
 /*
 
-mathsFallback.h provides some maths functions that is not strictly available in c89
+mathsUtils.h provides some maths helper functions and fallback implementations which are not strictly available in c89
 
 */
 
 /* Classic include guard */
-#ifndef MATHSFallback_h
-#define MATHSFallback_h
+#ifndef MATHSUTILS_h
+#define MATHSUTILS_h
 
 #if defined(__STDC__)
 #define PREDEF_STANDARD_C_1989
@@ -25,17 +25,10 @@ mathsFallback.h provides some maths functions that is not strictly available in 
 #endif
 
 #ifndef PREDEF_STANDARD_C_1990 /* roundf only exits after c99*/
-float roundf(float input)
-{
-    if (input < 0.0)
-    {
-        return (float)((int)(input - 0.5));
-    }
-    else
-    {
-        return (float)((int)(input + 0.5));
-    }
-}
+extern float roundf(float input);
 #endif
+
+/* Check if a float is close to a value based on the epsilon precision */
+extern int fuzzyEqualsf(const float a, const float b, const float epsilon);
 
 #endif
