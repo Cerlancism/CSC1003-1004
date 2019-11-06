@@ -19,6 +19,8 @@ Treats the console out like a canvas drawing ascii characters on position x and 
 /* Offset y buffer position relative the plot */
 #define Print_Coord_Y(x) (int)(_bufferRows - 2 - roundf(x))
 
+#define BORDER_LEN (_bufferColumns - 2 - LEFT_PAD)
+
 static unsigned int _bufferRows;
 static unsigned int _bufferColumns;
 static unsigned int _plotRows;
@@ -31,14 +33,8 @@ static float _yOffset;
 
 static char **_displayBuffer;
 
-static void charRepeat(char *buffer, char character, unsigned int count)
-{
-    memset(buffer, character, count * sizeof(char));
-    buffer[count - 1] = '\0';
-}
-
 /* Prints a string of text on the plotter view port */
-static void printText(char *text, unsigned int posX, unsigned int posY)
+void consoleplotter_printText(char *text, unsigned int posX, unsigned int posY)
 {
     char *line;
     int textLength;
@@ -73,21 +69,22 @@ void consoleplotter_printCoord(char *text, const float *const x, const float *co
 
     if ((plotY > 0) && (plotY <= ((int)_plotRows + 1)) && (plotX > LEFT_PAD) && plotX < ((int)_bufferColumns - 1))
     {
-        printText(text, plotX, plotY);
+        consoleplotter_printText(text, plotX, plotY);
     }
 }
 
 /* Initialise the plotter display size. xLength and yLength to be positive. */
 void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, float xLength, float yStart, float yLength)
 {
-    size_t i, y, x;
-    char *topBorder;
+    size_t x, y;
+    char *border;
+
     puts("");
 
     if (xLength < 0 || yLength < 0)
     {
         puts("EXCEPTION: xLength and yLength must be positive.");
-        exit(0); /* Exception occurs and kills program. */
+        exit(1); /* Exception occurs and kills program. */
     }
 
     _bufferRows = rows + 3;
@@ -104,44 +101,59 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
     if (!_displayBuffer)
     {
         _displayBuffer = malloc(sizeof(char *) * _bufferRows);
-        for (i = 0; i < _bufferRows; i++)
+
+        if (!_displayBuffer)
         {
-            _displayBuffer[i] = malloc(sizeof(char) * (_bufferColumns + 1));
-            memset(_displayBuffer[i], ' ', (sizeof(char) * (_bufferColumns)));
-            _displayBuffer[i][_bufferColumns] = '\0';
+            puts("MEMORY FAILURE: Failed allocating display buffer!");
+            exit(1); /* Exception occurs and kills program. */
+        }
+
+        for (y = 0; y < _bufferRows; y++)
+        {
+            _displayBuffer[y] = malloc(sizeof(char) * (_bufferColumns + 1));
+
+            if (!_displayBuffer[y])
+            {
+                puts("MEMORY FAILURE: Failed allocating display buffer line!");
+                exit(1); /* Exception occurs and kills program. */
+            }
+
+            memset(_displayBuffer[y], ' ', (sizeof(char) * (_bufferColumns)));
+            _displayBuffer[y][_bufferColumns] = '\0';
         }
     }
 
     /* Initialise an ASCII art box */
-    topBorder = malloc(sizeof(char) * (_bufferColumns - 2 - LEFT_PAD + 1));
-    charRepeat(topBorder, '_', _bufferColumns - 2 - LEFT_PAD + 1);
+    border = malloc(sizeof(char) * (BORDER_LEN + 1));
+    memset(border, '_', sizeof(char) * (BORDER_LEN));
+    border[BORDER_LEN] = '\0';
 
-    printText(topBorder, 1 + LEFT_PAD, 0);
+    consoleplotter_printText(border, 1 + LEFT_PAD, 0);
 
     /* Prints the y bar labelling */
     for (y = 1; y < _bufferRows - 1; y++)
     {
         char labelPrint[10];
-        printText("|", LEFT_PAD, y);
-        printText("|", _bufferColumns - 1, y);
+        consoleplotter_printText("|", LEFT_PAD, y);
+        consoleplotter_printText("|", _bufferColumns - 1, y);
         sprintf(labelPrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
-        printText(labelPrint, 1, y);
+        consoleplotter_printText(labelPrint, 1, y);
     }
 
-    printText(topBorder, 1 + LEFT_PAD, _bufferRows - 2);
+    consoleplotter_printText(border, 1 + LEFT_PAD, _bufferRows - 2);
 
     /* Prints the x bar labelling */
-    for (i = 0; (i + 1) < _plotColumns; i += 10)
+    for (x = 0; (x + 1) < _plotColumns; x += 10)
     {
         char labelPrint[10];
-        sprintf(labelPrint, "|%-7.3f", i * _xMultiplier + xStart);
-        printText(labelPrint, Print_Coord_X(i), _bufferRows - 1);
+        sprintf(labelPrint, "|%-7.3f", x * _xMultiplier + xStart);
+        consoleplotter_printText(labelPrint, Print_Coord_X(x), _bufferRows - 1);
     }
 
     /* Draw the x axis */
     for (x = 0; x < _plotColumns; x++)
     {
-        printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
+        consoleplotter_printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
     }
 
     /* Draw the y axis */
@@ -149,11 +161,11 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
     {
         for (y = 0; y <= _plotRows; y++)
         {
-            printText("|", Print_Coord_X(_xOffset / _xMultiplier), Print_Coord_Y(y));
+            consoleplotter_printText("|", Print_Coord_X(_xOffset / _xMultiplier), Print_Coord_Y(y));
         }
     }
 
-    free(topBorder);
+    free(border);
 }
 
 /* Display the plotter to console. */

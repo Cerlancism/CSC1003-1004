@@ -21,3 +21,13 @@ int fuzzyEqualsf(const float a, const float b, const float epsilon)
 {
     return fabsf(a - b) <= epsilon;
 }
+
+float clampf(const float lower, const float upper, const float value)
+{
+    return value >= lower && value <= upper ? value : value < lower ? lower : upper;
+}
+
+int clampi(const int lower, const int upper, const int value)
+{
+    return value >= lower && value <= upper ? value : value < lower ? lower : upper;
+}

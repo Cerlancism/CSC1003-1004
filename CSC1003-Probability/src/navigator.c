@@ -33,11 +33,11 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale -= 1;
         }
-        else if (*scale > (SCALE_MID + 0.1))
+        else if (*scale > (SCALE_MID + 0.1f))
         {
             *scale -= STEP_MID;
 
-            if (fuzzyEqualsf(*scale, SCALE_MID, 0.001))
+            if (fuzzyEqualsf(*scale, SCALE_MID, 0.001f))
             {
                 *scale = SCALE_MID;
             }

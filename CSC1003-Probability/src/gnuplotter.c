@@ -41,13 +41,18 @@ void gnuplotter_show(const char *datafile, float m, float c)
 
     if (pipe != NULL)
     {
-        fprintf(pipe, "set terminal qt size 1280,720\n");
-        fprintf(pipe, "set xrange [-5:25]\n");
-        fprintf(pipe, "set yrange [-15:35]\n");
         fprintf(pipe, "set style line 1 linecolor rgb '#0060ad' linetype 1 linewidth 1\n");
         fprintf(pipe, "set style line 2 linecolor rgb '#60ad00' linetype 1 linewidth 1\n");
+        fprintf(pipe, "set style line 3 linecolor rgb '#ad0000' linetype 1 linewidth 1\n");
+        fprintf(pipe, "set multiplot layout 2,1 rowsfirst\n");
+        fprintf(pipe, "set xrange [-5:25]\n");
+        fprintf(pipe, "set yrange [-15:35]\n");
         fprintf(pipe, "set datafile separator ','\n");
         fprintf(pipe, "plot '%s' with points linestyle 2, %f * x + %f title 'line' with lines linestyle 1\n", datafile, m, c);
+        fprintf(pipe, "set xrange [-25:25]\n");
+        fprintf(pipe, "set yrange [0:1]\n");
+        fprintf(pipe, "plot 0.5 title 'n' with lines linestyle 3\n");
+        fprintf(pipe, "unset multiplot\n");
     }
     else
     {

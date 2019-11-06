@@ -31,4 +31,7 @@ extern float roundf(float input);
 /* Check if a float is close to a value based on the epsilon precision */
 extern int fuzzyEqualsf(const float a, const float b, const float epsilon);
 
+extern float clampf(const float lower, const float upper, const float value);
+extern int clampi(const int lower, const int upper, const int value);
+
 #endif
