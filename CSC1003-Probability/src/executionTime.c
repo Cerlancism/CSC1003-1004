@@ -17,7 +17,7 @@ static double getClock()
 #else
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);
-    return (t.tv_sec * 1e9 + t.tv_nsec) * 1e-9 * 1000;
+    return (t.tv_sec * 1e9 + t.tv_nsec) * 1e-6;
 #endif
 }
 
