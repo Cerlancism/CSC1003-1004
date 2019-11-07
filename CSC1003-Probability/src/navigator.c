@@ -1,4 +1,4 @@
-#include <math.h>
+#include "mathsUtils.h" /* fuzzyEquals */
 
 #define SCALE_MAX 8.0f
 #define SCALE_MID 0.1f
@@ -7,28 +7,25 @@
 #define STEP_MID 0.1f
 #define STEP_SMALL 0.01f
 
-/* Check if a float is close to a value based on the epsilon precision */
-static int fuzzyEquals(const float a, const float b, const float epsilon)
-{
-    return fabsf(a - b) <= epsilon;
-}
-
 /* Returns 1 if something has changed, else 0 */
-int navigate(const char *const controller, float *xAxis, float *yAxis, float *scale)
+int navigate(const char *const controller, float *xAxis, float *yAxis, float *scale, int *width, int *height)
 {
     switch (*controller)
     {
-    case '<':
+    case 'a':
+    case 'A':
         *xAxis -= 1;
         break;
-    case '>':
+    case 'd':
+    case 'D':
         *xAxis += 1;
         break;
-    case '^':
+    case 'w':
+    case 'W':
         *yAxis += 1;
         break;
-    case 'v':
-    case 'V':
+    case 's':
+    case 'S':
         *yAxis -= 1;
         break;
     case '+':
@@ -36,11 +33,11 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale -= 1;
         }
-        else if (*scale > (SCALE_MID + 0.1))
+        else if (*scale > (SCALE_MID + 0.1f))
         {
             *scale -= STEP_MID;
 
-            if (fuzzyEquals(*scale, SCALE_MID, 0.001))
+            if (fuzzyEqualsf(*scale, SCALE_MID, 0.001f))
             {
                 *scale = SCALE_MID;
             }
@@ -49,7 +46,7 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale -= STEP_SMALL;
 
-            if (fuzzyEquals(*scale, SCALE_SMALL, 0.001f))
+            if (fuzzyEqualsf(*scale, SCALE_SMALL, 0.001f))
             {
                 *scale = SCALE_SMALL;
             }
@@ -65,7 +62,7 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale += STEP_MID;
 
-            if (fuzzyEquals(*scale, 1, 0.001f))
+            if (fuzzyEqualsf(*scale, 1, 0.001f))
             {
                 *scale = 1;
             }
@@ -74,11 +71,32 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale += STEP_SMALL;
 
-            if (fuzzyEquals(*scale, SCALE_MID, 0.001f))
+            if (fuzzyEqualsf(*scale, SCALE_MID, 0.001f))
             {
                 *scale = SCALE_MID;
             }
         }
+        break;
+
+    case '>':
+        *width += 1;
+        break;
+    case '<':
+        if (*width < 2)
+        {
+            break;
+        }
+        *width -= 1;
+        break;
+    case 'v':
+        *height += 1;
+        break;
+    case '^':
+        if (*height < 2)
+        {
+            break;
+        }
+        *height -= 1;
         break;
     default:
         return 0;

@@ -9,9 +9,10 @@ The main entry point and regression, pdf computation point of the program.
 #include <stdlib.h> /* malloc free */
 #include <unistd.h> /* Parse cli options */
 
-#include "plotter.h"    /* For plotting the graph on console */
-#include "gnuplotter.h" /* For plotting the graph on gnu plot */
-#include "navigator.h"  /* For nagivating the plotted graph */
+#include "consoleplotter.h" /* For plotting the graph on console */
+#include "gnuplotter.h"     /* For plotting the graph on gnu plot */
+#include "navigator.h"      /* For nagivating the plotted graph */
+#include "executionTime.h"  /* For execution time tracking */
 
 /* system command to clear console */
 #ifdef _WIN32
@@ -51,6 +52,12 @@ typedef struct configuration
 } Configuration;
 
 Configuration config;
+
+Interval fileReadTime;
+Interval regressionTime;
+Interval consolePlotTime;
+Interval gnuplotTime;
+
 /*
  \fn getRegressLine
  \brief Function for reading input file and calculating regression line
@@ -73,6 +80,18 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f;
     float sumYY = 0.0f, sumXY = 0.0f;
     float yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
+
+    coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
+
+    /* Allocate SIZE no. coord2d objs*/
+    if (coordinates == NULL) /* If allocation memory fail, exit program. */
+    {
+        printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
+        exit(1);
+    }
+
+    timer_start(&fileReadTime);
+
     FILE *fileStream = fopen(file, "r"); /* Open file with read permission*/
 
     if (fileStream == NULL) /* If fail to open file, exit program. */
@@ -80,18 +99,16 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         printf("Error opening file: %s\n", file);
         exit(0);
     }
-    /* At this point, file opened successfully, allocate SIZE no. coord2d objs*/
-    coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
-    if (coordinates == NULL) /* If allocation memory fail, exit program. */
-    {
-        printf("Exiting program. Failure in allocating memory in getRegressLine Function.\n");
-        exit(1);
-    }
+
     /* Read each line of the file and assign the float values to x and y */
     for (index = 0; (fgets(line_buf, LINE_BUFFER_SIZE, fileStream) != NULL) && (index < SIZE); index++)
     {
         sscanf(line_buf, "%f,%f", &coordinates[index].x, &coordinates[index].y);
     }
+
+    timer_end(&fileReadTime);
+
+    timer_start(&regressionTime);
 
     /* Calculating maxY, min y and all the summation values */
     for (index = 0; index < SIZE; ++index)
@@ -124,14 +141,17 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     }
     /* Caclulate standard error of estimate and assign to pointee */
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
+
+    timer_end(&regressionTime);
+
     fclose(fileStream); /* Close file as best practice */
 }
 
-void displayPlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
+void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
 {
-    size_t i;
+    size_t i, len;
     float x, lineStep, labelPositionX, yTop, yMid, yBot;
-    char equationLabel[30];
+    char equationLabel[30], equationLabelBorder[30];
     float xStart = viewX * scale;
     float xLength = 25 * scale;
     float xEnd = xStart + xLength;
@@ -139,12 +159,12 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     float yLength = ceil(maxY - minY) * scale;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
 
-    plotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
+    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
 
     /* Plot the noise */
     for (i = 0; i < SIZE; i++)
     {
-        plotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
+        consoleplotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
     }
 
     /* Plot the line */
@@ -152,21 +172,27 @@ void displayPlot(float m, float c, float viewX, float viewY, float scale, float 
     for (x = xStart; x < xEnd; x += lineStep)
     {
         float y = m * x + c;
-        plotter_printCoord("*", &x, &y);
+        consoleplotter_printCoord("*", &x, &y);
     }
 
     /* Show a label in the graph */
-    labelPositionX = xStart + xLength / 2;
-    sprintf(equationLabel, "| y = %.2fx + %.2f |", m, c);
-    yTop = m * labelPositionX + c - yToConsoleStep * 2, yMid = m * labelPositionX + c - yToConsoleStep * 1, yBot = m * labelPositionX + c - yToConsoleStep * 3;
-    plotter_printCoord(equationLabel, &labelPositionX, &yTop); /* Print Equation label on middle of line graph. */
-    plotter_printCoord(".------------------.", &labelPositionX, &yMid);
-    plotter_printCoord("'------------------'", &labelPositionX, &yBot);
+    sprintf(equationLabel, "| * : y = %.2fx + %.2f |", m, c);
+    consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph. */
+    len = strlen(equationLabel);
+    consoleplotter_printText("|", 12, 2);
+    consoleplotter_printText("X : noise", 12 + 2, 2);
+    consoleplotter_printText("|", 12 + len - 1, 2);
+    memset(equationLabelBorder, '.', sizeof(char) * len);
+    equationLabelBorder[len] = '\0';
+    consoleplotter_printText(equationLabelBorder, 12, 1);
+    memset(equationLabelBorder, '\'', sizeof(char) * len);
+    consoleplotter_printText(equationLabelBorder, 12, 4);
 
     /* Print the graph to the console */
-    plotter_render();
+    consoleplotter_render();
     /* Release plotter buffer memory */
-    plotter_dispose();
+    consoleplotter_dispose();
+    /* consoleplotter_clear(); */
 }
 
 /* Initialise program configurations to default values */
@@ -232,7 +258,7 @@ int main(int argc, char **argv)
     /* Use function and calculate regression line and get respective values */
     getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY);
     /* Print out of all the respective important values */
-    printf("y = %f x + %f \n", m, c);
+    printf("y = %fx + %f \n", m, c);
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
@@ -241,37 +267,45 @@ int main(int argc, char **argv)
     viewX = -2;
     viewY = floor(minY);
 
-    if (hasGNUPlot())
+    if (gnuplotter_exits())
     {
         printf("Looks like you have GNU Plot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
         controlChar = getchar();
-        displayPlot(m, c, viewX, viewY, scale, minY, maxY);
+
         if (controlChar == 'Y' || controlChar == 'y')
         {
-            printf("Exit GNU Plot. Type < > ^ v + - to pan and zoom the console graph. Current scaling: %.2f\n", 1 / scale);
-            gnu_plot(config.fileName, m, c);
-        }
-        else
-        {
-            printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+            timer_start(&gnuplotTime);
+            gnuplotter_show(config.fileName, m, c);
+            timer_end(&gnuplotTime);
         }
     }
     else
     {
         printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
-        displayPlot(m, c, viewX, viewY, scale, minY, maxY);
-        printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
     }
+    timer_start(&consolePlotTime);
+    showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
+    timer_end(&consolePlotTime);
+
+    timer_report(&fileReadTime, "File Reading");
+    timer_report(&regressionTime, "Regression Calculation");
+    timer_report(&consolePlotTime, "Console Plotting");
+    timer_report(&gnuplotTime, "Gnuplot Plotting");
+
+    printf("Total Execution Time with Console Plotting: %0.2lf ms\n", 1000 * ((fileReadTime.end - fileReadTime.start) + (regressionTime.end - regressionTime.start) + (consolePlotTime.end - consolePlotTime.start)));
+    printf("Total Execution Time with Gnuplot Plotting: %0.2lf ms\n", 1000 * ((fileReadTime.end - fileReadTime.start) + (regressionTime.end - regressionTime.start) + (gnuplotTime.end - gnuplotTime.start)));
+
+    printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
 
     while (1)
     {
         controlChar = getchar();
 
-        if (navigate(&controlChar, &viewX, &viewY, &scale))
+        if (navigate(&controlChar, &viewX, &viewY, &scale, &config.consoleWidth, &config.consoleHeight))
         {
             system(CLEARCLS); /* Clear console screen */
-            displayPlot(m, c, viewX, viewY, scale, minY, maxY);
-            printf("Type < > ^ v + - to pan and zoom the graph. Current scaling: %.2f\n", 1 / scale);
+            showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
+            printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
         }
     }
     return 0;
