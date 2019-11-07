@@ -38,5 +38,5 @@ double timer_getInterval(const Interval *const interval)
 
 void timer_report(const Interval *const interval, const char *const description)
 {
-    printf("Execution Time for %s: %.2lf ms\n", description, timer_getInterval(interval));
+    printf("Execution Time for %s: %.2lf ms \n", description, timer_getInterval(interval));
 }
