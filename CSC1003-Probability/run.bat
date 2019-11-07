@@ -1,6 +1,6 @@
 cls
 del probability.exe
-gcc -o probability ./src/*.c
+gcc ./src/*.c -o probability -lpthread
 
 
 if exist probability.exe (

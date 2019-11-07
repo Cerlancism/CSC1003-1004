@@ -53,6 +53,7 @@ typedef struct configuration
 
 Configuration config;
 
+/* Execution time trackers */
 Interval fileReadTime;
 Interval regressionTime;
 Interval consolePlotTime;
@@ -292,8 +293,8 @@ int main(int argc, char **argv)
     timer_report(&consolePlotTime, "Console Plotting");
     timer_report(&gnuplotTime, "Gnuplot Plotting");
 
-    printf("Total Execution Time with Console Plotting: %0.2lf ms\n", 1000 * ((fileReadTime.end - fileReadTime.start) + (regressionTime.end - regressionTime.start) + (consolePlotTime.end - consolePlotTime.start)));
-    printf("Total Execution Time with Gnuplot Plotting: %0.2lf ms\n", 1000 * ((fileReadTime.end - fileReadTime.start) + (regressionTime.end - regressionTime.start) + (gnuplotTime.end - gnuplotTime.start)));
+    printf("Total Execution Time with Console Plotting: %0.2lf ms\n", timer_getInterval(&fileReadTime) + timer_getInterval(&regressionTime) + timer_getInterval(&consolePlotTime));
+    printf("Total Execution Time with Gnuplot Plotting: %0.2lf ms\n", timer_getInterval(&fileReadTime) + timer_getInterval(&regressionTime) + timer_getInterval(&gnuplotTime));
 
     printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
 
@@ -301,10 +302,13 @@ int main(int argc, char **argv)
     {
         controlChar = getchar();
 
+        timer_start(&consolePlotTime);
         if (navigate(&controlChar, &viewX, &viewY, &scale, &config.consoleWidth, &config.consoleHeight))
         {
             system(CLEARCLS); /* Clear console screen */
             showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
+            timer_end(&consolePlotTime);
+            timer_report(&consolePlotTime, "Replotting Console Plot");
             printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
         }
     }
