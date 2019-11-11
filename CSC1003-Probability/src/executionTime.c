@@ -23,17 +23,17 @@ static double getClock()
 
 double timer_start(Interval *interval)
 {
-    (*interval).start = getClock();
+    interval->start = getClock();
 }
 
 double timer_end(Interval *interval)
 {
-    (*interval).end = getClock();
+    interval->end = getClock();
 }
 
 double timer_getInterval(const Interval *const interval)
 {
-    return (*interval).end - (*interval).start;
+    return interval->end - interval->start;
 }
 
 void timer_report(const Interval *const interval, const char *const description)
