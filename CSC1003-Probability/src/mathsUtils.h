@@ -31,7 +31,7 @@ mathsUtils.h provides some maths helper functions and fallback implementations w
 #endif
 
 #ifndef M_PI
-#define MATH_PI 3.141593
+#define M_PI 3.141593
 #endif
 
 #ifndef PREDEF_STANDARD_C_1990 /* roundf only exits after c99*/
