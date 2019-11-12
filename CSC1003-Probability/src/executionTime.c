@@ -10,6 +10,10 @@ Utility to keep track time intervals
 
 #include "executionTime.h"
 
+/* 
+#define USE_SYSTEMTIME 
+*/
+
 static double getClock()
 {
 #ifdef USE_SYSTEMTIME
