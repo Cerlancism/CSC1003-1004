@@ -28,9 +28,6 @@ The main entry point and regression, pdf computation point of the program.
 #define PLOT_WIDTH config.consoleWidth
 #define LINE_BUFFER_SIZE 30
 
-#define PI 3.14159
-#define EXP 2.71828
-
 /*
   \struct coord2D
   \brief A struct object for storing x and y coordinates
@@ -150,7 +147,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
     sumXXMeanDiff /= SIZE;
     *sd = sqrt(sumXXMeanDiff);
-    *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * PI));
+    *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * M_PI));
     timer_end(&regressionTime);
     fclose(fileStream); /* Close file as best practice */
 }
