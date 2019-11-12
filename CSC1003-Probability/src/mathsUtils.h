@@ -8,6 +8,8 @@ mathsUtils.h provides some maths helper functions and fallback implementations w
 #ifndef MATHSUTILS_h
 #define MATHSUTILS_h
 
+#include <math.h>
+
 #if defined(__STDC__)
 #define PREDEF_STANDARD_C_1989
 #if defined(__STDC_VERSION__)
@@ -22,6 +24,14 @@ mathsUtils.h provides some maths helper functions and fallback implementations w
 #define PREDEF_STANDARD_C_2018
 #endif
 #endif
+#endif
+
+#ifndef M_E
+#define M_E 2.71828
+#endif
+
+#ifndef M_PI
+#define MATH_PI 3.141593
 #endif
 
 #ifndef PREDEF_STANDARD_C_1990 /* roundf only exits after c99*/
