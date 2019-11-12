@@ -9,6 +9,7 @@ The main entry point and regression, pdf computation point of the program.
 #include <stdlib.h> /* malloc free */
 #include <unistd.h> /* Parse cli options */
 
+#include "mathsUtils.h"
 #include "consoleplotter.h" /* For plotting the graph on console */
 #include "gnuplotter.h"     /* For plotting the graph on gnu plot */
 #include "navigator.h"      /* For nagivating the plotted graph */
@@ -23,11 +24,12 @@ The main entry point and regression, pdf computation point of the program.
 
 #define SIZE config.lineCount
 #define SCALE 100
-
 #define PLOT_HEIGHT config.consoleHeight
 #define PLOT_WIDTH config.consoleWidth
-
 #define LINE_BUFFER_SIZE 30
+
+#define PI 3.14159
+#define EXP 2.71828
 
 /*
   \struct coord2D
@@ -81,6 +83,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f;
     float sumYY = 0.0f, sumXY = 0.0f;
     float yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
+    float sumXXMeanDiff =0.0f;
 
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
 
@@ -135,20 +138,24 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     /* percentage of corelation coefficient squared  */
     *rr = ((*r) * (*r)) * 100.0f;
     /* Calculate Summation of (y - yprime)^2 */
+  
+    *mean = sumX/SIZE;
     for (index = 0; index < SIZE; ++index)
     {
         yPrime = (*m) * (coordinates[index].x) + *c;
         yyPrimeDiffSum += (coordinates[index].y - yPrime) * (coordinates[index].y - yPrime);
+        sumXXMeanDiff += (coordinates[index].x - mean)*(coordinate[index].x - mean);
     }
     /* Caclulate standard error of estimate and assign to pointee */
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
-
+    sumXXMeanDiff /= SIZE;
+    *sd = sqrt(sumXXMeanDiff);
+    *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * PI));
     timer_end(&regressionTime);
-
     fclose(fileStream); /* Close file as best practice */
 }
 
-void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
+void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY, float mean, float sd, float heightOfCurve)
 {
     size_t i, len;
     float x, lineStep, labelPositionX, yTop, yMid, yBot;
@@ -245,6 +252,7 @@ int main(int argc, char **argv)
 {
     /* Declare all the float variables for gradient, constant, etc... */
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f;
+    float mean = 0.0f, sd = 0.0f, heightOfCurve = 0.0f;
     /* char grid[SCALE][SCALE] = {" "}; */
     float minY = 0.0f;
     float maxY = 0.0f;
@@ -257,7 +265,7 @@ int main(int argc, char **argv)
     parseCommandLine(argc, argv);
 
     /* Use function and calculate regression line and get respective values */
-    getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY);
+    getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY, &mean, &sd, &heightOfCurve);
     /* Print out of all the respective important values */
     printf("y = %fx + %f \n", m, c);
     printf("Correlation coefficient: %f \n", r);
