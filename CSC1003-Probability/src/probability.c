@@ -173,7 +173,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     hist->meanNoise = sumNoise/SIZE;
     /* Calculating histogram stuffz,by here min, max and interval r calculated*/
     hist->size = (int)(ceil((hist->maxNoise - hist->minNoise)/hist->interval));
-    hist->bins = (int *)malloc(hist->size*sizeof(int));
+    hist->bins = (int *)calloc(hist->size,sizeof(int));
     printf("bins created: %i \n", hist->size);
     bias = (0.0f - hist->minNoise)/hist->interval;
     printf("bias: %i \n", bias);
