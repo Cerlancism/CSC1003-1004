@@ -43,13 +43,13 @@ typedef struct coord2D
 
 typedef struct histogram
 {
-  float minNoise;
-  float maxNoise;
-  float interval;
-  float meanNoise;
-  float sdNoise;
-  int size;
-  int * bins;
+    float minNoise;
+    float maxNoise;
+    float interval;
+    float meanNoise;
+    float sdNoise;
+    int size;
+    int *bins;
 } Histogram;
 
 Coord2D *coordinates;
@@ -83,7 +83,7 @@ Interval gnuplotTime;
  \param minY Pointer to minimum Y float value
  \param maxY Pointer to maximum Y float value
 */
-void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY, float *mean, float*sd, float*heightOfCurve, Histogram * hist)
+void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY, float *mean, float *sd, float *heightOfCurve, Histogram *hist)
 {
     /* Declare and intialize line buffer, index as iterator for all lines in  */
     /* in stream file, summation of X, Y, X Square, Y Square, XY, YPrime and  */
@@ -93,7 +93,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumX = 0.0f, sumY = 0.0f, sumXX = 0.0f;
     float sumYY = 0.0f, sumXY = 0.0f;
     float yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
-    float sumXXMeanDiff =0.0f;
+    float sumXXMeanDiff = 0.0f;
     float sumNoise = 0.0f;
     float sumNoiseMeanNoiseDiff = 0.0f;
     int bias = 0;
@@ -151,38 +151,38 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     /* percentage of corelation coefficient squared  */
     *rr = ((*r) * (*r)) * 100.0f;
     /* Calculate Summation of (y - yprime)^2 */
-  
-    *mean = sumX/SIZE;
+
+    *mean = sumX / SIZE;
     for (index = 0; index < SIZE; ++index)
     {
         yPrime = (*m) * (coordinates[index].x) + *c;
         coordinates[index].noise = (coordinates[index].y - yPrime);
         sumNoise += coordinates[index].noise;
         yyPrimeDiffSum += coordinates[index].noise * coordinates[index].noise;
-        sumXXMeanDiff += (coordinates[index].x - *mean)*(coordinates[index].x - *mean);
-        if(coordinates[index].noise >= hist->maxNoise)
-          hist->maxNoise = coordinates[index].noise;
-        if(coordinates[index].noise <= hist->minNoise)
-          hist->minNoise = coordinates[index].noise;
+        sumXXMeanDiff += (coordinates[index].x - *mean) * (coordinates[index].x - *mean);
+        if (coordinates[index].noise >= hist->maxNoise)
+            hist->maxNoise = coordinates[index].noise;
+        if (coordinates[index].noise <= hist->minNoise)
+            hist->minNoise = coordinates[index].noise;
     }
     /* Caclulate standard error of estimate and assign to pointee */
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
     sumXXMeanDiff /= SIZE;
     *sd = sqrt(sumXXMeanDiff);
     *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * M_PI));
-    hist->meanNoise = sumNoise/SIZE;
+    hist->meanNoise = sumNoise / SIZE;
     /* Calculating histogram stuffz,by here min, max and interval r calculated*/
-    hist->size = (int)(ceil((hist->maxNoise - hist->minNoise)/hist->interval));
-    hist->bins = (int *)calloc(hist->size,sizeof(int));
+    hist->size = (int)(ceil((hist->maxNoise - hist->minNoise) / hist->interval));
+    hist->bins = (int *)calloc(hist->size, sizeof(int));
     printf("bins created: %i \n", hist->size);
-    bias = (0.0f - hist->minNoise)/hist->interval;
+    bias = (0.0f - hist->minNoise) / hist->interval;
     printf("bias: %i \n", bias);
-    if(!(hist->bins))
-      printf("Error allocating bins for histogram. \n");
-    for(index = 0; index < SIZE; ++index)
+    if (!(hist->bins))
+        printf("Error allocating bins for histogram. \n");
+    for (index = 0; index < SIZE; ++index)
     {
-      ++(hist->bins)[(int)(coordinates[index].noise/hist->interval + bias)];
-      sumNoiseMeanNoiseDiff += (coordinates[index].noise - hist->meanNoise) * (coordinates[index].noise - hist->meanNoise);
+        ++(hist->bins)[(int)(coordinates[index].noise / hist->interval + bias)];
+        sumNoiseMeanNoiseDiff += (coordinates[index].noise - hist->meanNoise) * (coordinates[index].noise - hist->meanNoise);
     }
     sumNoiseMeanNoiseDiff /= SIZE;
     hist->sdNoise = sqrt(sumNoiseMeanNoiseDiff);
@@ -295,7 +295,7 @@ int main(int argc, char **argv)
     float scale, viewX, viewY;
 
     char controlChar = '\0';
-  
+
     int histoIter = 0;
     int histoSize = 0;
     int printIter = 0;
@@ -315,15 +315,6 @@ int main(int argc, char **argv)
     printf("Printing histogram data... \n");
     printf("Histogram's Mean Noise: %f , Standard Deviation of Noise: %f \n ", hist.meanNoise, hist.sdNoise);
     printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", hist.minNoise, hist.maxNoise, hist.interval);
-    printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
-    for(;histoIter < hist.size; ++histoIter)
-    {
-      printf("%f \n", hist.minNoise + (float)(hist.interval * histoIter));
-      for(printIter = 0; printIter < (hist.bins[histoIter]/scaleDownFactor); ++printIter)
-        printf("*");
-      printf("\n");
-    }
-    printf("Printing of histogram ended... \n");
     scale = 1;
     viewX = -2;
     viewY = floor(minY);
@@ -345,11 +336,20 @@ int main(int argc, char **argv)
         printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
     }
     timer_start(&consolePlotTime);
+    printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
+    for (; histoIter < hist.size; ++histoIter)
+    {
+        printf("%f \n", hist.minNoise + (float)(hist.interval * histoIter));
+        for (printIter = 0; printIter < (hist.bins[histoIter] / scaleDownFactor); ++printIter)
+            printf("*");
+        printf("\n");
+    }
+    printf("Printing of histogram ended... \n");
     showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
     timer_end(&consolePlotTime);
 
     timer_report(&fileReadTime, "File Reading");
-    timer_report(&regressionTime, "Regression Calculation");
+    timer_report(&regressionTime, "Regression and PDF Calculation");
     timer_report(&consolePlotTime, "Console Plotting");
     timer_report(&gnuplotTime, "Gnuplot Plotting");
 
