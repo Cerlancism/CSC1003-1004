@@ -305,16 +305,17 @@ int main(int argc, char **argv)
     printf("Printing histogram data... \n");
     printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", hist.minNoise, hist.maxNoise, hist.interval);
     printf("Printing histogram chart... \n");
-    for(;histoIter < hist.size; ++histoIter)
-      printf("Bin %i : %i noises\n", histoIter, hist.bins[histoIter]);
     /*
     for(;histoIter < hist.size; ++histoIter)
+      printf("Bin %i : %i noises\n", histoIter, hist.bins[histoIter]);
+    */
+    for(;histoIter < hist.size; ++histoIter)
     {
-      printf("\n %f \n", hist.minNoise + histoIter * hist.interval);
-      for(printIter = 0; printIter < (hist.bins)[histoIter]; ++histoIter)
+      printf("%f \n", hist.minNoise + (float)(hist.interval * histoIter));
+      for(printIter = 0; printIter < (hist.bins[histoIter]/2); ++printIter)
         printf("*");
+      printf("\n");
     }
-     */
     scale = 1;
     viewX = -2;
     viewY = floor(minY);
