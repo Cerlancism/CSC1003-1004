@@ -38,9 +38,20 @@ typedef struct coord2D
 {
     float x;
     float y;
+    float noise;
 } Coord2D;
 
+typedef struct histogram
+{
+  float minNoise;
+  float maxNoise;
+  float interval;
+  int size;
+  int * bins;
+} Histogram;
+
 Coord2D *coordinates;
+Histogram hist;
 
 typedef struct configuration
 {
@@ -70,7 +81,7 @@ Interval gnuplotTime;
  \param minY Pointer to minimum Y float value
  \param maxY Pointer to maximum Y float value
 */
-void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY)
+void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY, float *mean, float*sd, float*heightOfCurve, Histogram * hist)
 {
     /* Declare and intialize line buffer, index as iterator for all lines in  */
     /* in stream file, summation of X, Y, X Square, Y Square, XY, YPrime and  */
@@ -81,6 +92,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumYY = 0.0f, sumXY = 0.0f;
     float yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
     float sumXXMeanDiff =0.0f;
+    int bias = 0;
 
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
 
@@ -140,19 +152,35 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     for (index = 0; index < SIZE; ++index)
     {
         yPrime = (*m) * (coordinates[index].x) + *c;
-        yyPrimeDiffSum += (coordinates[index].y - yPrime) * (coordinates[index].y - yPrime);
-        sumXXMeanDiff += (coordinates[index].x - mean)*(coordinate[index].x - mean);
+        coordinates[index].noise = (coordinates[index].y - yPrime);
+        yyPrimeDiffSum += coordinates[index].noise * coordinates[index].noise;
+        sumXXMeanDiff += (coordinates[index].x - *mean)*(coordinates[index].x - *mean);
+        if(coordinates[index].noise >= hist->maxNoise)
+          hist->maxNoise = coordinates[index].noise;
+        if(coordinates[index].noise <= hist->minNoise)
+          hist->minNoise = coordinates[index].noise;
     }
     /* Caclulate standard error of estimate and assign to pointee */
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
     sumXXMeanDiff /= SIZE;
     *sd = sqrt(sumXXMeanDiff);
     *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * M_PI));
+    
+    /* Calculating histogram stuffz,by here min, max and interval r calculated*/
+    hist->size = (int)(ceil((hist->maxNoise - hist->minNoise)/hist->interval));
+    hist->bins = (int *)malloc(hist->size*sizeof(int));
+    printf("bins created: %i \n", hist->size);
+    bias = (0.0f - hist->minNoise)/hist->interval;
+    printf("bias: %i \n", bias);
+    if(!(hist->bins))
+      printf("Error allocating bins for histogram. \n");
+    for(index = 0; index < SIZE; ++index)
+      ++(hist->bins)[(int)(coordinates[index].noise/hist->interval + bias)];
     timer_end(&regressionTime);
     fclose(fileStream); /* Close file as best practice */
 }
 
-void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY, float mean, float sd, float heightOfCurve)
+void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
 {
     size_t i, len;
     float x, lineStep, labelPositionX, yTop, yMid, yBot;
@@ -257,18 +285,36 @@ int main(int argc, char **argv)
     float scale, viewX, viewY;
 
     char controlChar = '\0';
+  
+    int histoIter = 0;
+    int histoSize = 0;
+    int printIter = 0;
+  
+    hist.interval = 0.2f;
 
     initConfig();
     parseCommandLine(argc, argv);
 
     /* Use function and calculate regression line and get respective values */
-    getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY, &mean, &sd, &heightOfCurve);
+    getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY, &mean, &sd, &heightOfCurve, &hist);
     /* Print out of all the respective important values */
     printf("y = %fx + %f \n", m, c);
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
-
+    printf("Printing histogram data... \n");
+    printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", hist.minNoise, hist.maxNoise, hist.interval);
+    printf("Printing histogram chart... \n");
+    for(;histoIter < hist.size; ++histoIter)
+      printf("Bin %i : %i noises\n", histoIter, hist.bins[histoIter]);
+    /*
+    for(;histoIter < hist.size; ++histoIter)
+    {
+      printf("\n %f \n", hist.minNoise + histoIter * hist.interval);
+      for(printIter = 0; printIter < (hist.bins)[histoIter]; ++histoIter)
+        printf("*");
+    }
+     */
     scale = 1;
     viewX = -2;
     viewY = floor(minY);
