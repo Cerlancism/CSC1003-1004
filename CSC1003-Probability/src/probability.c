@@ -46,6 +46,8 @@ typedef struct histogram
   float minNoise;
   float maxNoise;
   float interval;
+  float meanNoise;
+  float sdNoise;
   int size;
   int * bins;
 } Histogram;
@@ -92,6 +94,8 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumYY = 0.0f, sumXY = 0.0f;
     float yPrime = 0.0f, yyPrimeDiffSum = 0.0f;
     float sumXXMeanDiff =0.0f;
+    float sumNoise = 0.0f;
+    float sumNoiseMeanNoiseDiff = 0.0f;
     int bias = 0;
 
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
@@ -153,6 +157,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     {
         yPrime = (*m) * (coordinates[index].x) + *c;
         coordinates[index].noise = (coordinates[index].y - yPrime);
+        sumNoise += coordinates[index].noise;
         yyPrimeDiffSum += coordinates[index].noise * coordinates[index].noise;
         sumXXMeanDiff += (coordinates[index].x - *mean)*(coordinates[index].x - *mean);
         if(coordinates[index].noise >= hist->maxNoise)
@@ -165,7 +170,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     sumXXMeanDiff /= SIZE;
     *sd = sqrt(sumXXMeanDiff);
     *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * M_PI));
-    
+    hist->meanNoise = sumNoise/SIZE;
     /* Calculating histogram stuffz,by here min, max and interval r calculated*/
     hist->size = (int)(ceil((hist->maxNoise - hist->minNoise)/hist->interval));
     hist->bins = (int *)malloc(hist->size*sizeof(int));
@@ -175,7 +180,12 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     if(!(hist->bins))
       printf("Error allocating bins for histogram. \n");
     for(index = 0; index < SIZE; ++index)
+    {
       ++(hist->bins)[(int)(coordinates[index].noise/hist->interval + bias)];
+      sumNoiseMeanNoiseDiff += (coordinates[index].noise - hist->meanNoise) * (coordinates[index].noise - hist->meanNoise);
+    }
+    sumNoiseMeanNoiseDiff /= SIZE;
+    hist->sdNoise = sqrt(sumNoiseMeanNoiseDiff);
     timer_end(&regressionTime);
     fclose(fileStream); /* Close file as best practice */
 }
@@ -289,8 +299,8 @@ int main(int argc, char **argv)
     int histoIter = 0;
     int histoSize = 0;
     int printIter = 0;
-  
-    hist.interval = 0.2f;
+    int scaleDownFactor = 4;
+    hist.interval = 0.5f;
 
     initConfig();
     parseCommandLine(argc, argv);
@@ -303,18 +313,17 @@ int main(int argc, char **argv)
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
     printf("Printing histogram data... \n");
+    printf("Histogram's Mean Noise: %f , Standard Deviation of Noise: %f \n ", hist.meanNoise, hist.sdNoise);
     printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", hist.minNoise, hist.maxNoise, hist.interval);
-    printf("Printing histogram chart... \n");
-    for(;histoIter < hist.size; ++histoIter)
-      printf("Bin %i : %i noises\n", histoIter, hist.bins[histoIter]);
-    /*
+    printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
     for(;histoIter < hist.size; ++histoIter)
     {
-      printf("\n %f \n", hist.minNoise + histoIter * hist.interval);
-      for(printIter = 0; printIter < (hist.bins)[histoIter]; ++histoIter)
+      printf("%f \n", hist.minNoise + (float)(hist.interval * histoIter));
+      for(printIter = 0; printIter < (hist.bins[histoIter]/scaleDownFactor); ++printIter)
         printf("*");
+      printf("\n");
     }
-     */
+    printf("Printing of histogram ended... \n");
     scale = 1;
     viewX = -2;
     viewY = floor(minY);
