@@ -170,10 +170,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     sumXXMeanDiff /= SIZE;
     *sd = sqrt(sumXXMeanDiff);
     *heightOfCurve = 1.0f / (*sd * sqrt(2.0f * M_PI));
-  
     hist->meanNoise = sumNoise/SIZE;
-    
-  
     /* Calculating histogram stuffz,by here min, max and interval r calculated*/
     hist->size = (int)(ceil((hist->maxNoise - hist->minNoise)/hist->interval));
     hist->bins = (int *)malloc(hist->size*sizeof(int));
