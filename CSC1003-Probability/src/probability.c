@@ -336,8 +336,7 @@ int main(int argc, char **argv)
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
-    printf("Printing histogram data... \n");
-    printf("Histogram's Mean Noise: %f , Standard Deviation of Noise: %f \n ", hist.meanNoise, hist.sdNoise);
+    printf("Histogram's Mean Noise: %f , Standard Deviation of Noise: %f \n", hist.meanNoise, hist.sdNoise);
     printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", hist.minNoise, hist.maxNoise, hist.interval);
     scale = 1;
     viewX = -2;
@@ -360,6 +359,7 @@ int main(int argc, char **argv)
         printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
     }
     timer_start(&consolePlotTime);
+    /*
     // printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
     // for (; histoIter < hist.size; ++histoIter)
     // {
@@ -369,6 +369,7 @@ int main(int argc, char **argv)
     //     printf("\n");
     // }
     // printf("Printing of histogram ended... \n");
+    */
     showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
     timer_end(&consolePlotTime);
 
