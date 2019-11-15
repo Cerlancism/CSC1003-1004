@@ -190,13 +190,18 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     fclose(fileStream); /* Close file as best practice */
 }
 
-void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY)
+float gaussianPower(const float *const baseValue, const float *const mean, const float *const sd, const float *const x)
+{
+    return *baseValue * pow(M_E, -0.5 * pow((*x - *mean) / *sd, 2));
+}
+
+void showConsolePlot(float m, float c, float viewX, float viewY, float scale, float minY, float maxY, float heightofcurve)
 {
     size_t i, len;
     float x, lineStep, labelPositionX, yTop, yMid, yBot;
     char equationLabel[30], equationLabelBorder[30];
     float xStart = viewX * scale;
-    float xLength = 25 * scale;
+    float xLength = 30 * scale;
     float xEnd = xStart + xLength;
     float yStart = viewY * scale;
     float yLength = ceil(maxY - minY) * scale;
@@ -238,23 +243,20 @@ void showConsolePlot(float m, float c, float viewX, float viewY, float scale, fl
     consoleplotter_clear();
 
     int maxHist = 0;
-    for (size_t i = 0; i < hist.size; i++)
+    for (i = 0; i < hist.size; i++)
     {
         if (hist.bins[i] > maxHist)
         {
             maxHist = hist.bins[i];
         }
     }
-    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, hist.minNoise, hist.maxNoise - hist.minNoise, 0, maxHist);
+    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, -15, 30, 0, 0.07);
 
-    for (size_t i = 0; i < hist.size; i++)
+    for (i = 0; i < hist.size; i++)
     {
         float x = (hist.minNoise + (float)(hist.interval * i));
-        float y = (float)hist.bins[i];
-        for (float yy = y; yy >= 0; yy -= 1)
-        {
-            consoleplotter_printCoord("+", &x, &yy);
-        }
+        float y = gaussianPower(&heightofcurve, &hist.meanNoise, &hist.sdNoise, &x);
+        consoleplotter_printCoord("+", &x, &y);
     }
 
     consoleplotter_render();
@@ -304,7 +306,6 @@ void parseCommandLine(int argc, char **argv)
     printf(", Lines: %d", config.lineCount);
     printf(", Console Plot Height: %d", config.consoleHeight);
     printf(", Console Plot Width: %d", config.consoleWidth);
-    puts("\n-h to display command line options");
 }
 
 int main(int argc, char **argv)
@@ -324,64 +325,62 @@ int main(int argc, char **argv)
     int histoSize = 0;
     int printIter = 0;
     int scaleDownFactor = 1;
-    hist.interval = 0.1f;
 
     initConfig();
     parseCommandLine(argc, argv);
 
+    hist.interval = 1.0f / (float)PLOT_WIDTH;
     /* Use function and calculate regression line and get respective values */
     getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY, &mean, &sd, &heightOfCurve, &hist);
     /* Print out of all the respective important values */
-    printf("y = %fx + %f \n", m, c);
+    printf("Linear line: f(x) = %fx + %f \n", m, c);
     printf("Correlation coefficient: %f \n", r);
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
     printf("Histogram's Mean Noise: %f , Standard Deviation of Noise: %f \n", hist.meanNoise, hist.sdNoise);
     printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", hist.minNoise, hist.maxNoise, hist.interval);
     scale = 1;
-    viewX = -2;
+    viewX = -5;
     viewY = floor(minY);
 
     if (gnuplotter_exists())
     {
-        printf("Looks like you have GNU Plot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
+        printf("Looks like you have Gnuplot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
         controlChar = getchar();
-
-        if (controlChar == 'Y' || controlChar == 'y')
-        {
-            timer_start(&gnuplotTime);
-            gnuplotter_show(config.fileName, m, c);
-            timer_end(&gnuplotTime);
-        }
     }
     else
     {
         printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
     }
+
     timer_start(&consolePlotTime);
-    /*
-    // printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
-    // for (; histoIter < hist.size; ++histoIter)
-    // {
-    //     printf("%10f ", hist.minNoise + (float)(hist.interval * histoIter));
-    //     for (printIter = 0; printIter < (hist.bins[histoIter] / scaleDownFactor); ++printIter)
-    //         printf("*");
-    //     printf("\n");
-    // }
-    // printf("Printing of histogram ended... \n");
-    */
-    showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
+    showConsolePlot(m, c, viewX, viewY, scale, minY, maxY, heightOfCurve);
     timer_end(&consolePlotTime);
 
     timer_report(&fileReadTime, "File Reading");
     timer_report(&regressionTime, "Regression and PDF Calculation");
     timer_report(&consolePlotTime, "Console Plotting");
-    timer_report(&gnuplotTime, "Gnuplot Plotting");
 
     printf("Total Execution Time with Console Plotting: %0.2lf ms\n", timer_getInterval(&fileReadTime) + timer_getInterval(&regressionTime) + timer_getInterval(&consolePlotTime));
-    printf("Total Execution Time with Gnuplot Plotting: %0.2lf ms\n", timer_getInterval(&fileReadTime) + timer_getInterval(&regressionTime) + timer_getInterval(&gnuplotTime));
 
-    printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
+    /* User has consented to open gnu plot. */
+    if (controlChar == 'Y' || controlChar == 'y')
+    {
+        FILE *gnuplotpipe;
+        timer_start(&gnuplotTime);
+        gnuplotpipe = gnuplotter_pipe(config.fileName, m, c, heightOfCurve, hist.meanNoise, hist.sdNoise);
+        fflush(gnuplotpipe);
+        timer_end(&gnuplotTime);
+        timer_report(&gnuplotTime, "Gnuplot Plotting");
+        printf("Total Execution Time with Gnuplot Plotting: %0.2lf ms\n", timer_getInterval(&fileReadTime) + timer_getInterval(&regressionTime) + timer_getInterval(&gnuplotTime));
+        printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
+        printf("You have to close the Gnuplot first to write to the console.\n");
+        pclose(gnuplotpipe);
+    }
+    else
+    {
+        printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);
+    }
 
     while (1)
     {
@@ -391,7 +390,7 @@ int main(int argc, char **argv)
         if (navigate(&controlChar, &viewX, &viewY, &scale, &config.consoleWidth, &config.consoleHeight))
         {
             system(CLEARCLS); /* Clear console screen */
-            showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
+            showConsolePlot(m, c, viewX, viewY, scale, minY, maxY, heightOfCurve);
             timer_end(&consolePlotTime);
             timer_report(&consolePlotTime, "Replotting Console Plot");
             printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f\n", 1 / scale);

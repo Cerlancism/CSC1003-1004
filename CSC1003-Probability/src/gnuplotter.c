@@ -9,6 +9,7 @@ http://www.gnuplotting.org/
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "mathsUtils.h"
 
 #define GNU_PLOTH_PATH "gnuplot"
 
@@ -35,7 +36,7 @@ int gnuplotter_exists()
 }
 
 /* Launch the GNU Plot application. */
-void gnuplotter_show(const char *datafile, float m, float c)
+FILE *gnuplotter_pipe(const char *datafile, float m, float c, float gaussianBase, float mean, float sd)
 {
     FILE *pipe = popen(GNU_PLOTH_PATH " -persistent", "w");
 
@@ -49,9 +50,9 @@ void gnuplotter_show(const char *datafile, float m, float c)
         fprintf(pipe, "set yrange [-15:35]\n");
         fprintf(pipe, "set datafile separator ','\n");
         fprintf(pipe, "plot '%s' with points linestyle 2, %f * x + %f title 'line' with lines linestyle 1\n", datafile, m, c);
-        fprintf(pipe, "set xrange [-25:25]\n");
-        fprintf(pipe, "set yrange [0:1]\n");
-        fprintf(pipe, "plot 0.5 title 'n' with lines linestyle 3\n");
+        fprintf(pipe, "set xrange [-15:15]\n");
+        fprintf(pipe, "set yrange [0:0.08]\n");
+        fprintf(pipe, "plot %f * (%f ** (-1.0 * 0.5 * (((x - %f) / %f) * ((x - %f) / %f)))) title 'PDF' with lines linestyle 3\n", gaussianBase, M_E, mean, sd, mean, sd);
         fprintf(pipe, "unset multiplot\n");
     }
     else
@@ -59,5 +60,5 @@ void gnuplotter_show(const char *datafile, float m, float c)
         printf("Failed to open GNU Plot!\n");
     }
 
-    fflush(pipe);
+    return pipe;
 }

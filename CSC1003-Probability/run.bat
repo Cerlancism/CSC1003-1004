@@ -4,7 +4,7 @@ gcc ./src/*.c -o probability -lpthread
 
 
 if exist probability.exe (
-    probability
+    probability %*
 ) else (
     pause
 )
