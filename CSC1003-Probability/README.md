@@ -29,7 +29,7 @@ Process Variable
 
 Output Variable
 	1. The Estimated Straight Line, Correlation Coefficient, Coefficient of Determination, Standard Error of Estimate, y = mx + c, r, rr, standErrOfEstimate (float m,   c,r,rr,standErrOfEstimate)
-	2. Plotting of the 10,000 points, (x,y) and Estimated Straight-Line using CMD and/or GNU plot
+	2. Plotting of the 10,000 points, (x,y) and Estimated Straight-Line using CMD and/or Gnuplot
 
 ## Source Code
 This assignment is written in ANSI C(C89).  

@@ -182,6 +182,7 @@ void consoleplotter_render()
     puts("");
 }
 
+/* Retains allocated memory blocks for display buffer characters but resets them to spaces. */
 void consoleplotter_clear()
 {
     size_t i;

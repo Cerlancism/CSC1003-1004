@@ -1,7 +1,7 @@
 /*
 
 gnuplotter.c
-Adapter for GNU Plot command line interface 
+Adapter for Gnuplot command line interface 
 http://www.gnuplot.info/
 http://www.gnuplotting.org/
 
@@ -13,14 +13,14 @@ http://www.gnuplotting.org/
 
 #define GNU_PLOTH_PATH "gnuplot"
 
-/* Check the user's machine has GNU Plot intalled and runnable as a global process. */
+/* Check the user's machine has Gnuplot intalled and runnable as a global process. */
 int gnuplotter_exists()
 {
     FILE *pipe = popen(GNU_PLOTH_PATH, "w");
 
     if (pipe != NULL)
     {
-        if (pclose(pipe) == 0) /* Test if GNU plot has opened and then closed successfully.*/
+        if (pclose(pipe) == 0) /* Test if Gnuplot has opened and then closed successfully.*/
         {                      /* As so far the popen will return a non null pointer even if the process is not found. */
             return 1;
         }
@@ -34,8 +34,7 @@ int gnuplotter_exists()
         return 0;
     }
 }
-
-/* Launch the GNU Plot application. */
+/* Launch the Gnuplot application. */
 FILE *gnuplotter_pipe(const char *datafile, float m, float c, float gaussianBase, float mean, float sd)
 {
     FILE *pipe = popen(GNU_PLOTH_PATH " -persistent", "w");
@@ -47,17 +46,15 @@ FILE *gnuplotter_pipe(const char *datafile, float m, float c, float gaussianBase
         fprintf(pipe, "set style line 3 linecolor rgb '#ad0000' linetype 1 linewidth 1\n");
         fprintf(pipe, "set multiplot layout 2,1 rowsfirst\n");
         fprintf(pipe, "set xrange [-5:25]\n");
-        fprintf(pipe, "set yrange [-15:35]\n");
         fprintf(pipe, "set datafile separator ','\n");
-        fprintf(pipe, "plot '%s' with points linestyle 2, %f * x + %f title 'line' with lines linestyle 1\n", datafile, m, c);
+        fprintf(pipe, "plot '%s' with points linestyle 2, %f * x + %f title 'y = %fx + %f' with lines linestyle 1\n", datafile, m, c, m, c);
         fprintf(pipe, "set xrange [-15:15]\n");
-        fprintf(pipe, "set yrange [0:0.08]\n");
-        fprintf(pipe, "plot %f * (%f ** (-1.0 * 0.5 * (((x - %f) / %f) * ((x - %f) / %f)))) title 'PDF' with lines linestyle 3\n", gaussianBase, M_E, mean, sd, mean, sd);
+        fprintf(pipe, "plot %f * (exp(-0.5 * (((x - %f) / %f) ** 2))) title 'Gaussian function with μ = %f, σ = %f' with lines linestyle 3\n", gaussianBase, mean, sd, mean, sd);
         fprintf(pipe, "unset multiplot\n");
     }
     else
     {
-        printf("Failed to open GNU Plot!\n");
+        printf("Failed to open Gnuplot!\n");
     }
 
     return pipe;
