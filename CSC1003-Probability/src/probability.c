@@ -215,11 +215,11 @@ void showConsolePlot(float m, float c, float viewX, float viewY, float scale, fl
     for (x = xStart; x < xEnd; x += lineStep)
     {
         float y = m * x + c;
-        consoleplotter_printCoord("*", &x, &y);
+        consoleplotter_printCoord("+", &x, &y);
     }
 
     /* Show a label in the graph */
-    sprintf(equationLabel, "| * : y = %.2fx + %.2f |", m, c);
+    sprintf(equationLabel, "| + : y = %.2fx + %.2f |", m, c);
     consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph. */
     len = strlen(equationLabel);
     consoleplotter_printText("|", 12, 2);
@@ -234,8 +234,32 @@ void showConsolePlot(float m, float c, float viewX, float viewY, float scale, fl
     /* Print the graph to the console */
     consoleplotter_render();
     /* Release plotter buffer memory */
+
+    consoleplotter_clear();
+
+    int maxHist = 0;
+    for (size_t i = 0; i < hist.size; i++)
+    {
+        if (hist.bins[i] > maxHist)
+        {
+            maxHist = hist.bins[i];
+        }
+    }
+    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, hist.minNoise, hist.maxNoise - hist.minNoise, 0, maxHist);
+
+    for (size_t i = 0; i < hist.size; i++)
+    {
+        float x = (hist.minNoise + (float)(hist.interval * i));
+        float y = (float)hist.bins[i];
+        for (float yy = y; yy >= 0; yy -= 1)
+        {
+            consoleplotter_printCoord("+", &x, &yy);
+        }
+    }
+
+    consoleplotter_render();
+
     consoleplotter_dispose();
-    /* consoleplotter_clear(); */
 }
 
 /* Initialise program configurations to default values */
@@ -299,8 +323,8 @@ int main(int argc, char **argv)
     int histoIter = 0;
     int histoSize = 0;
     int printIter = 0;
-    int scaleDownFactor = 4;
-    hist.interval = 0.5f;
+    int scaleDownFactor = 1;
+    hist.interval = 0.1f;
 
     initConfig();
     parseCommandLine(argc, argv);
@@ -319,7 +343,7 @@ int main(int argc, char **argv)
     viewX = -2;
     viewY = floor(minY);
 
-    if (gnuplotter_exits())
+    if (gnuplotter_exists())
     {
         printf("Looks like you have GNU Plot installed, do you want to launch it? Y/N\n(This program will still alternatively plot on console as ASCII art)\n");
         controlChar = getchar();
@@ -336,15 +360,15 @@ int main(int argc, char **argv)
         printf("GNU Plot not intalled, this program will plot on console as ASCII art.\n");
     }
     timer_start(&consolePlotTime);
-    printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
-    for (; histoIter < hist.size; ++histoIter)
-    {
-        printf("%f \n", hist.minNoise + (float)(hist.interval * histoIter));
-        for (printIter = 0; printIter < (hist.bins[histoIter] / scaleDownFactor); ++printIter)
-            printf("*");
-        printf("\n");
-    }
-    printf("Printing of histogram ended... \n");
+    // printf("Printing histogram chart with scale down factor of %i ... \n", scaleDownFactor);
+    // for (; histoIter < hist.size; ++histoIter)
+    // {
+    //     printf("%10f ", hist.minNoise + (float)(hist.interval * histoIter));
+    //     for (printIter = 0; printIter < (hist.bins[histoIter] / scaleDownFactor); ++printIter)
+    //         printf("*");
+    //     printf("\n");
+    // }
+    // printf("Printing of histogram ended... \n");
     showConsolePlot(m, c, viewX, viewY, scale, minY, maxY);
     timer_end(&consolePlotTime);
 

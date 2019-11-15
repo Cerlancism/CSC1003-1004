@@ -150,10 +150,13 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
         consoleplotter_printText(labelPrint, Print_Coord_X(x), _bufferRows - 1);
     }
 
-    /* Draw the x axis */
-    for (x = 0; x < _plotColumns; x++)
+    if ((Print_Coord_Y(_yOffset / _yMultiplier) - (int)_bufferRows + 2) < 0)
     {
-        consoleplotter_printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
+        /* Draw the x axis */
+        for (x = 0; x < _plotColumns; x++)
+        {
+            consoleplotter_printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
+        }
     }
 
     /* Draw the y axis */
