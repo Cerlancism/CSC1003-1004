@@ -98,6 +98,8 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     float sumNoiseMeanNoiseDiff = 0.0f;
     int bias = 0;
 
+    FILE *fileStream;
+
     coordinates = (Coord2D *)malloc(sizeof(Coord2D) * SIZE);
 
     /* Allocate SIZE no. coord2d objs*/
@@ -109,7 +111,7 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
 
     timer_start(&fileReadTime);
 
-    FILE *fileStream = fopen(file, "r"); /* Open file with read permission*/
+    fileStream = fopen(file, "r"); /* Open file with read permission*/
 
     if (fileStream == NULL) /* If fail to open file, exit program. */
     {
@@ -122,6 +124,8 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     {
         sscanf(line_buf, "%f,%f", &coordinates[index].x, &coordinates[index].y);
     }
+
+    fclose(fileStream); /* Close file as best practice */
 
     timer_end(&fileReadTime);
 
@@ -187,7 +191,6 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
     sumNoiseMeanNoiseDiff /= SIZE;
     hist->sdNoise = sqrt(sumNoiseMeanNoiseDiff);
     timer_end(&regressionTime);
-    fclose(fileStream); /* Close file as best practice */
 }
 
 float gaussianPower(const float *const baseValue, const float *const mean, const float *const sd, const float *const x)
