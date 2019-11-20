@@ -28,6 +28,8 @@ The main entry point and regression, pdf computation point of the program.
 #define PLOT_WIDTH config.consoleWidth
 #define LINE_BUFFER_SIZE 30
 
+#define HISTOGRAM_FILE "histogram.dat"
+
 /*
   \struct coord2D
   \brief A struct object for storing x and y coordinates
@@ -188,17 +190,22 @@ void getRegressLine(const char *file, float *m, float *c, float *r, float *rr, f
         ++(hist->bins)[(int)(coordinates[index].noise / hist->interval + bias)];
         sumNoiseMeanNoiseDiff += (coordinates[index].noise - hist->meanNoise) * (coordinates[index].noise - hist->meanNoise);
     }
-    sumNoiseMeanNoiseDiff /= SIZE;
+    sumNoiseMeanNoiseDiff /= (SIZE - 1);
     hist->sdNoise = sqrt(sumNoiseMeanNoiseDiff);
     timer_end(&regressionTime);
 }
 
-float gaussianPower(const float *const baseValue, const float *const mean, const float *const sd, const float *const x)
+float gaussianHeight(float sd)
 {
-    return *baseValue * exp(-0.5 * pow((*x - *mean) / *sd, 2));
+    return (1.0 / (sqrt(2.0 * M_PI) * sd));
 }
 
-void showConsolePlot(float m, float c, float linearXStart, float linearYStart, float scale, float minY, float maxY, float heightofcurve, float displayOffsetX, float displayOffsetY)
+float gaussianPower(const float *const height, const float *const mean, const float *const sd, const float *const x)
+{
+    return *height * exp(-0.5 * pow((*x - *mean) / *sd, 2.0));
+}
+
+void showConsolePlot(float m, float c, float linearXStart, float linearYStart, float scale, float minY, float maxY, float displayOffsetX, float displayOffsetY)
 {
     size_t i, len;
     float x, lineStep, labelPositionX, yTop, yMid, yBot;
@@ -209,18 +216,19 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     float yStart = (linearYStart + displayOffsetY) * scale;
     float yLength = ceil(maxY - minY) * scale;
     float yToConsoleStep = yLength / PLOT_HEIGHT;
+    float antiAliseLevel = 8;
 
     consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
 
     /* Plot the noise */
     for (i = 0; i < SIZE; i++)
     {
-        consoleplotter_printCoord("X", &coordinates[i].x, &coordinates[i].y);
+        consoleplotter_printCoord("x", &coordinates[i].x, &coordinates[i].y);
     }
 
     /* Plot the line */
     lineStep = xLength / PLOT_WIDTH;
-    for (x = xStart; x < xEnd; x += lineStep)
+    for (x = xStart; x < xEnd; x += lineStep / antiAliseLevel)
     {
         float y = m * x + c;
         consoleplotter_printCoord("+", &x, &y);
@@ -231,7 +239,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph. */
     len = strlen(equationLabel);
     consoleplotter_printText("|", 12, 2);
-    consoleplotter_printText("X : noise", 12 + 2, 2);
+    consoleplotter_printText("x : noise", 12 + 2, 2);
     consoleplotter_printText("|", 12 + len - 1, 2);
     memset(equationLabelBorder, '.', sizeof(char) * len);
     equationLabelBorder[len] = '\0';
@@ -244,12 +252,38 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     /* Reset buffer memory for gaussian plotting. */
     consoleplotter_clear();
 
-    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, (-15 + displayOffsetX) * scale, 30 * scale, displayOffsetY * scale * (0.07 / PLOT_HEIGHT), 0.07 * scale);
+    float guassianMultiplier = SIZE * hist.interval;
+    float pdfStart = roundf(hist.meanNoise - hist.sdNoise * 4);
+    float pdfWidth = roundf(hist.sdNoise * 8);
+    float histCurveHeight = gaussianHeight(hist.sdNoise);
+    float pdfHeight = histCurveHeight * (guassianMultiplier + guassianMultiplier * 0.1);
+    float pdfYStep = pdfHeight / PLOT_WIDTH;
+    float pdfXStep = pdfWidth / PLOT_WIDTH;
+    char *barA = "X";
+    char *barB = "x";
+    int barAlternator = 0;
+
+    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, (pdfStart + displayOffsetX) * scale, pdfWidth * scale, (0 + displayOffsetY * pdfYStep) * scale, pdfHeight * scale);
 
     for (i = 0; i < hist.size; i++)
     {
-        float x = (hist.minNoise + (float)(hist.interval * i));
-        float y = gaussianPower(&heightofcurve, &hist.meanNoise, &hist.sdNoise, &x);
+        float x = hist.minNoise + hist.interval * i;
+        float y = hist.bins[i];
+        char *bar = barAlternator == 0 ? barA : barB;
+
+        for (float yy = y; yy > 0; yy -= pdfYStep)
+        {
+            for (float xx = (x + hist.interval / 4); xx < x + hist.interval + hist.interval / 4; xx += pdfXStep)
+            {
+                consoleplotter_printCoord(bar, &xx, &yy);
+            }
+        }
+        barAlternator = barAlternator == 0 ? 1 : 0;
+    }
+
+    for (x = pdfStart; x < pdfStart + pdfWidth; x += pdfXStep / antiAliseLevel)
+    {
+        float y = gaussianPower(&histCurveHeight, &hist.meanNoise, &hist.sdNoise, &x) * guassianMultiplier;
         consoleplotter_printCoord("+", &x, &y);
     }
 
@@ -300,7 +334,7 @@ void parseCommandLine(int argc, char **argv)
     printf("File: %s", config.fileName);
     printf(", Lines: %d", config.lineCount);
     printf(", Console Plot Height: %d", config.consoleHeight);
-    printf(", Console Plot Width: %d", config.consoleWidth);
+    printf(", Console Plot Width: %d\n", config.consoleWidth);
 }
 
 int main(int argc, char **argv)
@@ -308,7 +342,6 @@ int main(int argc, char **argv)
     /* Declare all the float variables for gradient, constant, etc... */
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f;
     float mean = 0.0f, sd = 0.0f, heightOfCurve = 0.0f;
-    /* char grid[SCALE][SCALE] = {" "}; */
     float minY = 0.0f;
     float maxY = 0.0f;
 
@@ -326,7 +359,7 @@ int main(int argc, char **argv)
     initConfig();
     parseCommandLine(argc, argv);
 
-    hist.interval = 1.0f / (float)PLOT_WIDTH;
+    hist.interval = 1.0f;
     /* Use function and calculate regression line and get respective values */
     getRegressLine(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY, &mean, &sd, &heightOfCurve, &hist);
     /* Print out of all the respective important values */
@@ -351,7 +384,7 @@ int main(int argc, char **argv)
     }
 
     timer_start(&consolePlotTime);
-    showConsolePlot(m, c, viewX, viewY, scale, minY, maxY, heightOfCurve, XOffset, YOffset);
+    showConsolePlot(m, c, viewX, viewY, scale, minY, maxY, XOffset, YOffset);
     timer_end(&consolePlotTime);
 
     timer_report(&fileReadTime, "File Reading");
@@ -364,7 +397,15 @@ int main(int argc, char **argv)
     if (controlChar == 'Y' || controlChar == 'y')
     {
         timer_start(&gnuplotTime);
-        gnuplotpipe = gnuplotter_pipe(config.fileName, m, c, heightOfCurve, hist.meanNoise, hist.sdNoise);
+        FILE *histFile = fopen(HISTOGRAM_FILE, "w");
+
+        for (size_t i = 0; i < SIZE; i++)
+        {
+            fprintf(histFile, "%f\n", coordinates[i].noise);
+        }
+
+        fclose(histFile);
+        gnuplotpipe = gnuplotter_pipe(config.fileName, HISTOGRAM_FILE, m, c, gaussianHeight(hist.sdNoise), hist.meanNoise, hist.sdNoise, SIZE * hist.interval, hist.size);
         fflush(gnuplotpipe);
         timer_end(&gnuplotTime);
         timer_report(&gnuplotTime, "Gnuplot Plotting");
@@ -380,7 +421,7 @@ int main(int argc, char **argv)
         if (navigate(&controlChar, &XOffset, &YOffset, &scale, &config.consoleWidth, &config.consoleHeight))
         {
             system(CLEARCLS); /* Clear console screen */
-            showConsolePlot(m, c, viewX, viewY, scale, minY, maxY, heightOfCurve, XOffset, YOffset);
+            showConsolePlot(m, c, viewX, viewY, scale, minY, maxY, XOffset, YOffset);
             timer_end(&consolePlotTime);
             timer_report(&consolePlotTime, "Replotting Console Plot");
             printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f. q to exit.\n", 1 / scale);

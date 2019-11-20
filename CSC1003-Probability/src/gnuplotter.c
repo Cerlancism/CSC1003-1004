@@ -35,8 +35,12 @@ int gnuplotter_exists()
     }
 }
 /* Launch the Gnuplot application. */
-FILE *gnuplotter_pipe(const char *datafile, float m, float c, float gaussianBase, float mean, float sd)
+FILE *gnuplotter_pipe(const char *datafile, const char *histogramFile, float m, float c, float gaussianBase, float mean, float sd, float multiplier, float interval)
 {
+    float min = mean - 4 * sd;
+    float max = mean + 4 * sd;
+    float width = (max - min) / interval;
+
     FILE *pipe = popen(GNU_PLOTH_PATH " -persistent", "w");
 
     if (pipe != NULL)
@@ -48,8 +52,18 @@ FILE *gnuplotter_pipe(const char *datafile, float m, float c, float gaussianBase
         fprintf(pipe, "set xrange [-5:25]\n");
         fprintf(pipe, "set datafile separator ','\n");
         fprintf(pipe, "plot '%s' with points linestyle 2, %f * x + %f title 'y = %fx + %f' with lines linestyle 1\n", datafile, m, c, m, c);
-        fprintf(pipe, "set xrange [-15:15]\n");
-        fprintf(pipe, "plot %f * (exp(-0.5 * (((x - %f) / %f) ** 2))) title 'Gaussian function with μ = %f, σ = %f' with lines linestyle 3\n", gaussianBase, mean, sd, mean, sd);
+        fprintf(pipe, "set xrange [%f:%f]\n", min, max);
+
+        fprintf(pipe, "n = %d\n", (int)interval);
+        fprintf(pipe, "width = %f\n", width);
+        fprintf(pipe, "hist(x,width) =width * floor(x / width) + width /2.0\n");
+        fprintf(pipe, "set boxwidth width*0.9\n");
+        fprintf(pipe, "set style fill solid 0.5 #fillstyle\n");
+        fprintf(pipe, "set style fill solid 0.5 #fillstyle\n");
+        fprintf(pipe, "set title 'Histogram overlaid with PDF, normalisation magnitude = %f'\n", multiplier);
+        fprintf(pipe, "plot '%s' u (hist($1,width)):(1.0) smooth freq w boxes lc rgb '#60ad00' title 'Histogram of noise n, intervals = %d', "
+                      "%f * (exp(-0.5 * (((x - %f) / %f) ** 2))) title 'Gaussian function with μ = %f, σ = %f' with lines linestyle 3\n",
+                histogramFile, (int)interval, gaussianBase * multiplier, mean, sd, mean, sd);
         fprintf(pipe, "unset multiplot\n");
     }
     else
