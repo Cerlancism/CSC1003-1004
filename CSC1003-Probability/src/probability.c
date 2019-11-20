@@ -90,6 +90,7 @@ Interval gnuplotTime;
  \param standErrOfEstimate Pointer to standard error of estimate float value
  \param minY Pointer to minimum Y float value
  \param maxY Pointer to maximum Y float value
+ \return a struct of analysed Dataset 
 */
 DataSet analyseDataset(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY)
 {
