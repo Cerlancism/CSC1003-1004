@@ -7,8 +7,10 @@
 #define STEP_MID 0.1f
 #define STEP_SMALL 0.01f
 
+#define EPSILION 0.0001f
+
 /* Returns 1 if something has changed, else 0 */
-int navigate(const char *const controller, float *xAxis, float *yAxis, float *scale, int *width, int *height)
+int navigate(const char *const controller, float *xAxis, float *yAxis, float *scale, unsigned int *width, unsigned int *height)
 {
     switch (*controller)
     {
@@ -37,7 +39,7 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale -= STEP_MID;
 
-            if (fuzzyEqualsf(*scale, SCALE_MID, 0.001f))
+            if (fuzzyEqualsf(*scale, SCALE_MID, EPSILION))
             {
                 *scale = SCALE_MID;
             }
@@ -46,7 +48,7 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale -= STEP_SMALL;
 
-            if (fuzzyEqualsf(*scale, SCALE_SMALL, 0.001f))
+            if (fuzzyEqualsf(*scale, SCALE_SMALL, EPSILION))
             {
                 *scale = SCALE_SMALL;
             }
@@ -62,7 +64,7 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale += STEP_MID;
 
-            if (fuzzyEqualsf(*scale, 1, 0.001f))
+            if (fuzzyEqualsf(*scale, 1, EPSILION))
             {
                 *scale = 1;
             }
@@ -71,7 +73,7 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         {
             *scale += STEP_SMALL;
 
-            if (fuzzyEqualsf(*scale, SCALE_MID, 0.001f))
+            if (fuzzyEqualsf(*scale, SCALE_MID, EPSILION))
             {
                 *scale = SCALE_MID;
             }
@@ -82,21 +84,13 @@ int navigate(const char *const controller, float *xAxis, float *yAxis, float *sc
         *width += 1;
         break;
     case '<':
-        if (*width < 2)
-        {
-            break;
-        }
-        *width -= 1;
+        *width = clampi(10, 1000, *width - 1);
         break;
     case 'v':
         *height += 1;
         break;
     case '^':
-        if (*height < 2)
-        {
-            break;
-        }
-        *height -= 1;
+        *height = clampi(10, 1000, *height - 1);
         break;
     default:
         return 0;
