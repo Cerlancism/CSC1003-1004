@@ -52,9 +52,6 @@ int main()
 		return -1;
 	}
 	printf("\n step1\n");
-	printf("\n IRQ_BASIC_PEND0 = : \n%X", IRQ_BASIC_PEND0);
-	printf("\n ENABLE_BASIC_IRQ0 = : \n%X", ENABLE_BASIC_IRQ0);
-	printf("\n DISABLE_BASIC_IRQ0 = : \n%X", DISABLE_BASIC_IRQ0);
 	printf("\n TIMER_LOAD0 = : \n%X", TIMER_LOAD0);
 	printf("\n TIMER_CONTROL0 = : \n%X", TIMER_CONTROL0);
 	printf("\n TIMER_IRQCLEAR0 = : \n%X", TIMER_IRQCLEAR0);
@@ -67,7 +64,6 @@ int main()
 	printf("\n Write value into Timer Load register, TIMER_LOAD0 = : \n%X", TIMER_LOAD0);
 	TIMER_PRE_DIVD0 = 0x3F0;
 	printf("\n Write a pre_divider value into TIMER_PRE_DIVD0 register, TIMER_PRE_DIVD0 = : \n%X", TIMER_PRE_DIVD0);
-	printf("\n ENABLE_BASIC_IRQ0 = : \n%X", ENABLE_BASIC_IRQ0);
 	TIMER_CONTROL0 |= ((2<<2)& 0x0000000C);
 	printf("\n Write Bit 2-3 of Timer Control Register (pre-scale clock/256), TIMER_CONTROL0 = : \n%X", TIMER_CONTROL0);
 	TIMER_CONTROL0 |= ((1<<1)&0x00000002);
@@ -76,19 +72,17 @@ int main()
 	printf("\n Write Bit 7 of Timer Control Register (enable timer), TIMER_CONTROL0 = : \n%X", TIMER_CONTROL0);
 	TIMER_CONTROL0 |= ((1<<5) & 0x00000020);
 	printf("\n Write Bit 5 of Timer Control Register (enable timer interrupt), TIMER_CONTROL0 = : \n%X", TIMER_CONTROL0);
-	printf("\n Before enable IRQ, IRQ_BASIC_PEND0 = : \n%X", IRQ_BASIC_PEND0);
-	printf("\nIRQ_BASIC_PEND0 = : \n%X", IRQ_BASIC_PEND0);
 	Enable_Interrupts();
-	ENABLE_BASIC_IRQ0 |= ((1<<0)&0x00000001);
-	printf("\n Write Bit 0 of ENABLE BASIC IRQ register (enable IRQ), ENABLE_BASIC_IRQ0 = : \n%X", ENABLE_BASIC_IRQ0);
 	printf("\n step 3\n");
 
 	while(1)
 	{
 		if(TIMER_MASK_IRQ0==1)
 		{
-			printf("Interrupt happened, count: %i \n", ++counter);
-			DISABLE_BASIC_IRQ0 |= ((3 << 1) & 0x00000003);
+			if(!counter)
+				counter++;
+			else
+				printf("Interrupt happened, count: %i \n",counter++);
 			TIMER_IRQCLEAR0 = 0;
 		}
 	}
