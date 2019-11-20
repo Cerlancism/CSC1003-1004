@@ -35,7 +35,7 @@ int gnuplotter_exists()
     }
 }
 /* Launch the Gnuplot application. */
-FILE *gnuplotter_pipe(const char *datafile, const char *histogramFile, float m, float c, float gaussianBase, float mean, float sd, float multiplier, int partitions)
+FILE *gnuplotter_pipe(const char *datafile, const char *histogramFile, const char *binFile, float m, float c, float gaussianBase, float mean, float sd, float multiplier, int partitions)
 {
     float min = mean - 4 * sd;
     float max = mean + 4 * sd;
@@ -45,6 +45,11 @@ FILE *gnuplotter_pipe(const char *datafile, const char *histogramFile, float m, 
 
     if (pipe != NULL)
     {
+        fprintf(pipe, "set fit quiet\n");
+        fprintf(pipe, "set title 'Histogram overlaid with PDF, normalisation magnitude = %g'\n", multiplier);
+        fprintf(pipe, "gauss(x)=a/(sqrt(2*pi)*sigma)*exp(-(x-mean)**2/(2*sigma**2)) \n");
+        fprintf(pipe, "fit gauss(x) '%s' u 1:2 via a, sigma, mean\n", binFile);
+
         fprintf(pipe, "set style line 1 linecolor rgb '#0060ad' linetype 1 linewidth 1\n");
         fprintf(pipe, "set style line 2 linecolor rgb '#60ad00' linetype 1 linewidth 1\n");
         fprintf(pipe, "set style line 3 linecolor rgb '#ad0000' linetype 1 linewidth 1\n");
@@ -59,11 +64,12 @@ FILE *gnuplotter_pipe(const char *datafile, const char *histogramFile, float m, 
         fprintf(pipe, "hist(x, width) = width * floor(x / width) + width / 2.0\n");
         fprintf(pipe, "set boxwidth width\n");
         fprintf(pipe, "set style fill solid 0.5 #fillstyle\n");
-        fprintf(pipe, "set title 'Histogram overlaid with PDF, normalisation magnitude = %g'\n", multiplier);
         fprintf(pipe,
                 "plot '%s' u (hist($1,width)):(1.0) smooth freq w boxes lc rgb '#60ad00' title 'Histogram of noise n, partitions = %d', "
+                "gauss(x) title sprintf(\"Best fitted line with μ = %%f, σ = %%f\", mean, sigma), "
                 "%f * (exp(-0.5 * (((x - %f) / %f) ** 2))) title 'Gaussian function with μ = %f, σ = %f' with lines linestyle 3\n",
-                histogramFile, partitions, gaussianBase * multiplier, mean, sd, mean, sd);
+                histogramFile,
+                partitions, gaussianBase * multiplier, mean, sd, mean, sd);
         fprintf(pipe, "unset multiplot\n");
     }
     else

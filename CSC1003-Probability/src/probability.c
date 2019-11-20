@@ -29,6 +29,7 @@ The main entry point and regression, pdf computation point of the program.
 #define LINE_BUFFER_SIZE 30
 
 #define HISTOGRAM_FILE "histogram.dat"
+#define BIN_FILE "bins.dat"
 
 /*
   \struct coord2D
@@ -264,6 +265,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
 
     consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, (pdfStart + displayOffsetX) * scale, pdfWidth * scale, (0 + displayOffsetY * pdfYStep) * scale, pdfHeight * scale);
 
+    /* Plot the histogram */
     for (i = 0; i < hist->size; i++)
     {
         float yy, xx;                                 /* Sub coordinates for filling the histogram bar */
@@ -283,6 +285,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
         barAlternator = barAlternator == 0 ? 1 : 0;
     }
 
+    /* Plot the gaussian function */
     for (x = pdfStart; x < pdfStart + pdfWidth; x += pdfXStep / antiAliasLevel)
     {
         y = gaussianPower(&histCurveHeight, &hist->meanNoise, &hist->sdNoise, &x) * guassianMultiplier;
@@ -342,6 +345,7 @@ void probability()
 
     FILE *gnuplotpipe = NULL;
     FILE *histFile;
+    FILE *binsFile;
 
     /* Use function and calculate regression line, histogram, pdf and get respective values */
     dataset = analyseDataset(config.fileName, &m, &c, &r, &rr, &standErrOfEstimate, &minY, &maxY);
@@ -379,14 +383,30 @@ void probability()
         size_t i;
         timer_start(&gnuplotTime);
         histFile = fopen(HISTOGRAM_FILE, "w");
+        binsFile = fopen(BIN_FILE, "w");
 
+        if (histFile == NULL || binsFile == NULL)
+        {
+            puts("FILE ERROR: Error writing temp histogram and bins data file!");
+            exit(1);
+        }
+
+        /* Store noise values to a data file for gnuplot to read */
         for (i = 0; i < SIZE; i++)
         {
             fprintf(histFile, "%f\n", dataset.coordinates[i].noise);
         }
 
+        /* Store bin values to a data file for gnuplot to read */
+        for (i = 0; i < dataset.histogram->size; i++)
+        {
+            fprintf(binsFile, "%g %d\n", dataset.histogram->minNoise + dataset.histogram->interval * i, dataset.histogram->bins[i]);
+            fprintf(binsFile, "%g, %d\n", dataset.histogram->maxNoise - dataset.histogram->interval * i, dataset.histogram->bins[dataset.histogram->size - 1 - i]);
+        }
+
+        fclose(binsFile);
         fclose(histFile);
-        gnuplotpipe = gnuplotter_pipe(config.fileName, HISTOGRAM_FILE, m, c, gaussianHeight(dataset.histogram->sdNoise), dataset.histogram->meanNoise, dataset.histogram->sdNoise, SIZE * dataset.histogram->interval, dataset.histogram->size);
+        gnuplotpipe = gnuplotter_pipe(config.fileName, HISTOGRAM_FILE, BIN_FILE, m, c, gaussianHeight(dataset.histogram->sdNoise), dataset.histogram->meanNoise, dataset.histogram->sdNoise, SIZE * dataset.histogram->interval, dataset.histogram->size);
         fflush(gnuplotpipe);
         timer_end(&gnuplotTime);
         timer_report(&gnuplotTime, "Gnuplot Plotting");
@@ -416,6 +436,9 @@ void probability()
         printf("Close Gnuplot Window as it is still open.");
         pclose(gnuplotpipe);
         printf("\r%64s\r", " "); /* Erase the current line. */
+
+        if (remove("fit.log"))
+            printf("Unable to delete one gnuplot log file.");
     }
 
     free(dataset.coordinates);
