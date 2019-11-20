@@ -136,7 +136,7 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
         char labelPrint[10];
         consoleplotter_printText("|", LEFT_PAD, y);
         consoleplotter_printText("|", _bufferColumns - 1, y);
-        sprintf(labelPrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
+        sprintf(labelPrint, "%5.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
         consoleplotter_printText(labelPrint, 1, y);
     }
 
@@ -150,10 +150,13 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
         consoleplotter_printText(labelPrint, Print_Coord_X(x), _bufferRows - 1);
     }
 
-    /* Draw the x axis */
-    for (x = 0; x < _plotColumns; x++)
+    if ((Print_Coord_Y(_yOffset / _yMultiplier) - (int)_bufferRows + 2) < 0)
     {
-        consoleplotter_printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
+        /* Draw the x axis */
+        for (x = 0; x < _plotColumns; x++)
+        {
+            consoleplotter_printText("-", Print_Coord_X(x), Print_Coord_Y(_yOffset / _yMultiplier));
+        }
     }
 
     /* Draw the y axis */
@@ -179,6 +182,7 @@ void consoleplotter_render()
     puts("");
 }
 
+/* Retains allocated memory blocks for display buffer characters but resets them to spaces. */
 void consoleplotter_clear()
 {
     size_t i;
