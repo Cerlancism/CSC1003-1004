@@ -297,7 +297,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     }
 
     /* Show labels in the graph */
-    sprintf(equationLabel, "| + : PDF Function", m, c);
+    sprintf(equationLabel, "| + : PDF Function");
     consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph */
     lableLength = 28;
     consoleplotter_printText("|", 12 + lableLength - 1, 3);

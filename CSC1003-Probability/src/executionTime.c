@@ -33,13 +33,11 @@ static double getClock()
 #elif defined(USE_TIMEOFDAY)
     static struct timeval _tv;
     gettimeofday(&_tv, NULL);
-    double out = _tv.tv_sec * 1000 + _tv.tv_usec / 1000.0;
-    return out;
+    return _tv.tv_sec * 1000 + _tv.tv_usec / 1000.0;
 #else
     static struct timespec _ts;
     clock_gettime(CLOCK_MONOTONIC, &_ts);
-    double out = _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000.0;
-    return out;
+    return _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000.0;
 #endif
 }
 
@@ -63,7 +61,7 @@ void timer_report(const Interval *const interval, const char *const description)
     double result = timer_getInterval(interval);
     if (result == 0) /* Time interval is too short for the precision of current timer */
     {
-        printf("Execution Time for %s: much less than 1 ms \n", description, result);
+        printf("Execution Time for %s: much less than 1 ms \n", description);
     }
     else
     {
