@@ -5,7 +5,8 @@ The main entry point and regression, pdf computation point of the program.
 */
 
 #include <stdio.h> /* IO operations console/file/string */
-#include <math.h>  /* pow round ceil floor */
+#include <string.h>
+#include <math.h> /* pow round ceil floor */
 #include <stdlib.h>
 #include <unistd.h> /* Parse cli options */
 
@@ -361,7 +362,7 @@ void probability()
     timer_report(&dataAnalysisTime, "Regression and PDF Calculation");
     timer_report(&consoleplotTime, "Console Plotting");
 
-    printf("Total Execution Time with Console Plotting: %0.2f ms\n", timer_getInterval(&dataFileReadTime) + timer_getInterval(&dataAnalysisTime) + timer_getInterval(&consoleplotTime));
+    printf("Total Execution Time with Console Plotting: %0.3f ms\n", timer_getInterval(&dataFileReadTime) + timer_getInterval(&dataAnalysisTime) + timer_getInterval(&consoleplotTime));
 
     /* User has consented to open Gnuplot. */
     if (controlChar == 'Y' || controlChar == 'y')
@@ -409,7 +410,7 @@ void probability()
         fflush(gnuplotpipe);
         timer_end(&gnuplotTime);
         timer_report(&gnuplotTime, "Gnuplot Plotting");
-        printf("Total Execution Time with Gnuplot Plotting: %0.2f ms\n", timer_getInterval(&dataFileReadTime) + timer_getInterval(&dataAnalysisTime) + timer_getInterval(&gnuplotTime));
+        printf("Total Execution Time with Gnuplot Plotting: %0.3f ms\n", timer_getInterval(&dataFileReadTime) + timer_getInterval(&dataAnalysisTime) + timer_getInterval(&gnuplotTime));
     }
     printf("Type W A S D + - to pan and zoom the graph, < > ^ v to resize the graph. Current scaling: %.2f. q to exit.\n", 1 / scale);
 

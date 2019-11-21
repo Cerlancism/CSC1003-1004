@@ -36,17 +36,21 @@ This assignment is written in ANSI C(C89).
 All source files (`.c` `.h`) in `./src/` folder are originally written by the team.  
 They contain the algorithms for calculating the regression line equation, file operations, plotting graph as ASCII art on the console as well as an optional feature to open and plot the graph on a additional program called [Gnuplot]("http://www.gnuplot.info/").
 
-Main entry point: `regression.c`
+Main entry point: `probability.c`
 ## Dependencies
 - C Standard Library
 - C Maths Library
+- librt or pthread (for high precision execution timer)
 - unistd
 - Gnuplot (Optional)
 
 ## Compiling
 This is compiled and tested using GCC.  
 Open terminal in this directory:   
-> `gcc ./src/*.c -o regression -lm`
+### Windows
+> `gcc ./src/*.c -o probability -lpthread`
+### Linux/Mac
+> `gcc ./src/*.c -o probability -lm -lrt`
 
 ### Platforms Supported
 - Windows

@@ -10,7 +10,7 @@ Utility to keep track time intervals
 
 #include "executionTime.h"
 
-/* Enable this to use the less precise timeofday if the more precise clock_gettime(CLOCK_MONOTONIC, &_t) does not work as needs runtime or pthread library.  
+/* Enable this to use the less precise timeofday if the more precise clock_gettime(CLOCK_MONOTONIC, &_t) does not work as it needs runtime or pthread library.  
 #define USE_TIMEOFDAY
 */
 
@@ -33,11 +33,11 @@ static double getClock()
 #elif defined(USE_TIMEOFDAY)
     static struct timeval _tv;
     gettimeofday(&_tv, NULL);
-    return _tv.tv_sec * 1000 + _tv.tv_usec / 1000.0;
+    return _tv.tv_sec * 1000.0 + _tv.tv_usec / 1000.0;
 #else
     static struct timespec _ts;
     clock_gettime(CLOCK_MONOTONIC, &_ts);
-    return _ts.tv_sec * 1000 + _ts.tv_nsec / 1000000.0;
+    return _ts.tv_sec * 1000.0 + _ts.tv_nsec / 1000000.0;
 #endif
 }
 
