@@ -29,7 +29,7 @@ The main entry point and regression, pdf computation point of the program.
 #define LINE_BUFFER_SIZE 30
 
 #define HISTOGRAM_FILE "histogram.dat"
-#define BIN_FILE "bins.dat"
+#define BINS_FILE "bins.dat"
 
 /*
   \struct coord2D
@@ -229,6 +229,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     float pdfXStep = pdfWidth / PLOT_WIDTH;
     char *barA = "X", *barB = "x"; /* Histogram bar patterns */
     int barAlternator = 0;
+    float noiseInterval = (hist->maxNoise - hist->minNoise) / (hist->size - 1);
 
     consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, xStart, xLength, yStart, yLength);
 
@@ -246,7 +247,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
         consoleplotter_printCoord("+", &x, &y);
     }
 
-    /* Show a label in the graph */
+    /* Show labels in the graph */
     sprintf(equationLabel, "| + : y = %.2fx + %.2f |", m, c);
     consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph */
     lableLength = strlen(equationLabel);
@@ -258,6 +259,8 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     consoleplotter_printText(equationLabelBorder, 12, 1);
     memset(equationLabelBorder, '\'', sizeof(char) * lableLength);
     consoleplotter_printText(equationLabelBorder, 12, 4);
+
+    puts("Ploted ASCII Art Graph for linear Regression line");
 
     /* Print the graph to the console */
     consoleplotter_render();
@@ -271,14 +274,14 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     {
         float yy, xx;                                 /* Sub coordinates for filling the histogram bar */
         char *bar = barAlternator == 0 ? barA : barB; /* Alternating bar graph pattern */
-        x = hist->minNoise + hist->interval * i;
+        x = hist->minNoise + noiseInterval * i;
         y = hist->bins[i];
 
         for (yy = y; yy > 0; yy -= pdfYStep)
         {
-            float barOffset = x + hist->interval / 4;
-            float barEnd = barOffset + hist->interval;
-            for (xx = barOffset; xx < barEnd; xx += pdfXStep)
+            float barOffset = x;
+            float barEnd = barOffset + noiseInterval;
+            for (xx = barOffset; xx <= barEnd; xx += pdfXStep)
             {
                 consoleplotter_printCoord(bar, &xx, &yy);
             }
@@ -293,44 +296,26 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
         consoleplotter_printCoord("+", &x, &y);
     }
 
+    /* Show labels in the graph */
+    sprintf(equationLabel, "| + : PDF Function", m, c);
+    consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph */
+    lableLength = 28;
+    consoleplotter_printText("|", 12 + lableLength - 1, 3);
+    consoleplotter_printText("|", 12, 2);
+    consoleplotter_printText("x : histogram partitions", 12 + 2, 2);
+    consoleplotter_printText("|", 12 + lableLength - 1, 2);
+    memset(equationLabelBorder, '.', sizeof(char) * lableLength);
+    equationLabelBorder[lableLength] = '\0';
+    consoleplotter_printText(equationLabelBorder, 12, 1);
+    memset(equationLabelBorder, '\'', sizeof(char) * lableLength);
+    consoleplotter_printText(equationLabelBorder, 12, 4);
+
+    puts("Ploted ASCII Art Graph for histogram and pdf function");
+
     consoleplotter_render();
 
     /* Release plotter buffer memory */
     consoleplotter_dispose();
-}
-
-/* Process command line arguments to configure the program configurations if there are any */
-void parseCommandLine(int argc, char **argv)
-{
-    int opt;
-    while ((opt = getopt(argc, argv, ":f:l:r:c:i:h")) != -1)
-    {
-        switch (opt)
-        {
-        case 'f': /* Name of data file */
-            sprintf(config.fileName, "%s", optarg);
-            break;
-        case 'l': /* Lines to scan for the data file */
-            sscanf(optarg, "%u", &config.lineCount);
-            break;
-        case 'r': /* Number of console rows to allocate for the ASCII Art plotting */
-            sscanf(optarg, "%u", &config.consoleHeight);
-            break;
-        case 'c': /* Number of console columns to allocate for the ASCII Art plotting */
-            sscanf(optarg, "%u", &config.consoleWidth);
-            break;
-        case 'i': /* Partition size of histogram */
-            sscanf(optarg, "%f", &config.histogramPartitionSize);
-            break;
-        case 'h': /* Show a simple help message showing these configurable options */
-            printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n");
-            exit(0);
-            break;
-        case '?':
-            printf("Unknown option -%c.\n", optopt);
-            break;
-        }
-    }
 }
 
 void probability()
@@ -356,7 +341,7 @@ void probability()
     printf("Coefficient of determination: %f %% \n", rr);
     printf("Standard error of estimate: %f \n", standErrOfEstimate);
     printf("Histogram's Mean Noise: %f , Standard Deviation of Noise: %f \n", dataset.histogram->meanNoise, dataset.histogram->sdNoise);
-    printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f \n", dataset.histogram->minNoise, dataset.histogram->maxNoise, dataset.histogram->interval);
+    printf("Histogram's Min Noise: %f , Max Noise: %f , Interval: %f, Bins: %d \n", dataset.histogram->minNoise, dataset.histogram->maxNoise, dataset.histogram->interval, (int)dataset.histogram->size);
 
     if (gnuplotter_exists())
     {
@@ -382,13 +367,14 @@ void probability()
     if (controlChar == 'Y' || controlChar == 'y')
     {
         size_t i;
+        float noiseInterval;
         timer_start(&gnuplotTime);
         histFile = fopen(HISTOGRAM_FILE, "w");
-        binsFile = fopen(BIN_FILE, "w");
+        binsFile = fopen(BINS_FILE, "w");
 
         if (histFile == NULL || binsFile == NULL)
         {
-            puts("FILE ERROR: Error writing temp histogram and bins data file!");
+            puts("FILE ERROR: Error writing histogram or bins data file(s)!");
             exit(1);
         }
 
@@ -399,15 +385,27 @@ void probability()
         }
 
         /* Store bin values to a data file for gnuplot to read */
+        noiseInterval = (dataset.histogram->maxNoise - dataset.histogram->minNoise) / (dataset.histogram->size - 1);
         for (i = 0; i < dataset.histogram->size; i++)
         {
-            fprintf(binsFile, "%g %d\n", dataset.histogram->minNoise + dataset.histogram->interval * i, dataset.histogram->bins[i]);
-            fprintf(binsFile, "%g, %d\n", dataset.histogram->maxNoise - dataset.histogram->interval * i, dataset.histogram->bins[dataset.histogram->size - 1 - i]);
+            fprintf(binsFile, "%g %d\n", dataset.histogram->minNoise + noiseInterval / 2 + noiseInterval * i, dataset.histogram->bins[i]);
         }
 
         fclose(binsFile);
         fclose(histFile);
-        gnuplotpipe = gnuplotter_pipe(config.fileName, HISTOGRAM_FILE, BIN_FILE, m, c, gaussianHeight(dataset.histogram->sdNoise), dataset.histogram->meanNoise, dataset.histogram->sdNoise, SIZE * dataset.histogram->interval, dataset.histogram->size);
+        gnuplotpipe = gnuplotter_pipe(
+            config.fileName,
+            HISTOGRAM_FILE,
+            BINS_FILE,
+            m,
+            c,
+            gaussianHeight(dataset.histogram->sdNoise),
+            dataset.histogram->meanNoise,
+            dataset.histogram->sdNoise,
+            SIZE * dataset.histogram->interval,
+            dataset.histogram->size,
+            dataset.histogram->minNoise,
+            dataset.histogram->maxNoise);
         fflush(gnuplotpipe);
         timer_end(&gnuplotTime);
         timer_report(&gnuplotTime, "Gnuplot Plotting");
@@ -447,6 +445,40 @@ void probability()
     free(dataset.histogram->bins);
 
     puts("Program terminated successfully!");
+}
+
+/* Process command line arguments to configure the program configurations if there are any */
+void parseCommandLine(int argc, char **argv)
+{
+    int opt;
+    while ((opt = getopt(argc, argv, ":f:l:r:c:i:h")) != -1)
+    {
+        switch (opt)
+        {
+        case 'f': /* Name of data file */
+            sprintf(config.fileName, "%s", optarg);
+            break;
+        case 'l': /* Lines to scan for the data file */
+            sscanf(optarg, "%u", &config.lineCount);
+            break;
+        case 'r': /* Number of console rows to allocate for the ASCII Art plotting */
+            sscanf(optarg, "%u", &config.consoleHeight);
+            break;
+        case 'c': /* Number of console columns to allocate for the ASCII Art plotting */
+            sscanf(optarg, "%u", &config.consoleWidth);
+            break;
+        case 'i': /* Partition size of histogram */
+            sscanf(optarg, "%f", &config.histogramPartitionSize);
+            break;
+        case 'h': /* Show a simple help message showing these configurable options */
+            printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n");
+            exit(0);
+            break;
+        case '?':
+            printf("Unknown option -%c.\n", optopt);
+            break;
+        }
+    }
 }
 
 int main(int argc, char **argv)
