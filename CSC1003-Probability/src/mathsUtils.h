@@ -34,7 +34,7 @@ mathsUtils.h provides some maths helper functions and fallback implementations w
 #define M_PI 3.141593
 #endif
 
-#ifndef PREDEF_STANDARD_C_1990 /* roundf only exits after c99*/
+#ifndef PREDEF_STANDARD_C_1990 /* roundf only exits after c99 */
 extern float roundf(float input);
 #endif
 
@@ -43,5 +43,8 @@ extern int fuzzyEqualsf(const float a, const float b, const float epsilon);
 
 extern float clampf(const float lower, const float upper, const float value);
 extern int clampi(const int lower, const int upper, const int value);
+
+float gaussianHeight(float sd);
+float gaussianPower(const float *const height, const float *const mean, const float *const sd, const float *const x);
 
 #endif

@@ -136,7 +136,7 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
         char labelPrint[10];
         consoleplotter_printText("|", LEFT_PAD, y);
         consoleplotter_printText("|", _bufferColumns - 1, y);
-        sprintf(labelPrint, "%7.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
+        sprintf(labelPrint, "%5.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
         consoleplotter_printText(labelPrint, 1, y);
     }
 
@@ -182,6 +182,7 @@ void consoleplotter_render()
     puts("");
 }
 
+/* Retains allocated memory blocks for display buffer characters but resets them to spaces. */
 void consoleplotter_clear()
 {
     size_t i;
