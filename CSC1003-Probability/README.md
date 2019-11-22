@@ -48,7 +48,10 @@ Main entry point: `probability.c`
 This is compiled and tested using GCC.  
 Open terminal in this directory:   
 ### Windows
-> `gcc ./src/*.c -o probability -lpthread`
+> `gcc ./src/*.c -o probability -lpthread`  
+
+Or for distribution to another Windows machine without gcc installed by static  linking: 
+> `gcc ./src/*.c -o probability -static -lpthread`  
 ### Linux/Mac
 > `gcc ./src/*.c -o probability -lm -lrt`
 

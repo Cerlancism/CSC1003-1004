@@ -1,12 +1,13 @@
 /*
-probability.c
 
-The main entry point and regression, pdf computation point of the program.
+probability.c
+The main entry point, dataset reading, regression and pdf computation of the program.
+
 */
 
-#include <stdio.h> /* IO operations console/file/string */
+#include <stdio.h>
 #include <string.h>
-#include <math.h> /* pow round ceil floor */
+#include <math.h>
 #include <stdlib.h>
 #include <unistd.h> /* Parse cli options */
 
@@ -16,7 +17,7 @@ The main entry point and regression, pdf computation point of the program.
 #include "navigator.h"      /* For nagivating the plotted graph */
 #include "executionTime.h"  /* For execution time tracking */
 
-/* system command to clear console */
+/* System commands to clear console */
 #ifdef _WIN32
 #define CLEARCLS "cls"
 #else
@@ -24,7 +25,6 @@ The main entry point and regression, pdf computation point of the program.
 #endif
 
 #define SIZE config.lineCount
-#define SCALE 100
 #define PLOT_HEIGHT config.consoleHeight
 #define PLOT_WIDTH config.consoleWidth
 #define LINE_BUFFER_SIZE 30
@@ -37,6 +37,7 @@ The main entry point and regression, pdf computation point of the program.
   \brief A struct object for storing x and y coordinates
   \var float x-coordinate value
   \var float y-coordinate value
+  \var float noise the n value of a corrupted coordinate
  */
 typedef struct coord2D
 {
@@ -208,27 +209,32 @@ DataSet analyseDataset(const char *file, float *m, float *c, float *r, float *rr
 
 void showConsolePlot(float m, float c, float linearXStart, float linearYStart, float scale, float minY, float maxY, float displayOffsetX, float displayOffsetY, DataSet dataset)
 {
+    /* Destructure dataset struct for less typing */
     Coord2D *coordinates = dataset.coordinates;
     Histogram *hist = dataset.histogram;
 
+    /* AE1 Linear Line Plotting Control Variables */
     size_t i, lableLength;
-    float x, y, lineStep;
+    float x, y;
     char equationLabel[30], equationLabelBorder[30];
-    float xStart = (linearXStart + displayOffsetX) * scale;
-    float xLength = 30 * scale;
-    float xEnd = xStart + xLength;
-    float yStart = (linearYStart + displayOffsetY) * scale;
-    float yLength = ceil(maxY - minY) * scale;
     float antiAliasLevel = 8;
+    float xLength = 30 * scale;
+    float yLength = ceil(maxY - minY) * scale;
+    float lineXstep = xLength / PLOT_WIDTH;
+    float lineYStep = yLength / scale / PLOT_HEIGHT;
+    float xStart = (linearXStart + displayOffsetX) * scale;
+    float yStart = linearYStart + displayOffsetY * lineYStep * scale;
+    float xEnd = xStart + xLength;
 
-    float guassianMultiplier = SIZE * hist->interval;
+    /* AE2 Histogram/PDF Plotting Control Variables */
+    float guassianMagnitude = SIZE * hist->interval;
     float pdfStart = roundf(hist->meanNoise - hist->sdNoise * 4);
     float pdfWidth = roundf(hist->sdNoise * 8);
     float histCurveHeight = gaussianHeight(hist->sdNoise);
-    float pdfHeight = histCurveHeight * (guassianMultiplier + guassianMultiplier * 0.1);
+    float pdfHeight = histCurveHeight * (guassianMagnitude + guassianMagnitude * 0.1);
     float pdfYStep = pdfHeight / PLOT_HEIGHT;
     float pdfXStep = pdfWidth / PLOT_WIDTH;
-    char *barA = "X", *barB = "x"; /* Histogram bar patterns */
+    char *barA = "X", *barB = "x"; /* Histogram bar visual patterns */
     int barAlternator = 0;
     float noiseInterval = (hist->maxNoise - hist->minNoise) / (hist->size - 1);
 
@@ -241,8 +247,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     }
 
     /* Plot the line */
-    lineStep = xLength / PLOT_WIDTH;
-    for (x = xStart; x < xEnd; x += lineStep / antiAliasLevel)
+    for (x = xStart; x < xEnd; x += lineXstep / antiAliasLevel)
     {
         y = m * x + c;
         consoleplotter_printCoord("+", &x, &y);
@@ -250,16 +255,16 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
 
     /* Show labels in the graph */
     sprintf(equationLabel, "| + : y = %.2fx + %.2f |", m, c);
-    consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph */
+    consoleplotter_printText(equationLabel, 11, 3); /* Print Equation label on top left of line graph */
     lableLength = strlen(equationLabel);
-    consoleplotter_printText("|", 12, 2);
-    consoleplotter_printText("x : noise", 12 + 2, 2);
-    consoleplotter_printText("|", 12 + lableLength - 1, 2);
+    consoleplotter_printText("|", 11, 2);
+    consoleplotter_printText("x : noise", 11 + 2, 2);
+    consoleplotter_printText("|", 11 + lableLength - 1, 2);
     memset(equationLabelBorder, '.', sizeof(char) * lableLength);
     equationLabelBorder[lableLength] = '\0';
-    consoleplotter_printText(equationLabelBorder, 12, 1);
+    consoleplotter_printText(equationLabelBorder, 11, 1);
     memset(equationLabelBorder, '\'', sizeof(char) * lableLength);
-    consoleplotter_printText(equationLabelBorder, 12, 4);
+    consoleplotter_printText(equationLabelBorder, 11, 4);
 
     puts("Ploted ASCII Art Graph for linear Regression line");
 
@@ -268,7 +273,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     /* Reset buffer memory for gaussian plotting */
     consoleplotter_clear();
 
-    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, (pdfStart + displayOffsetX) * scale, pdfWidth * scale, (0 + displayOffsetY * pdfYStep) * scale, pdfHeight * scale);
+    consoleplotter_init(PLOT_HEIGHT, PLOT_WIDTH, (pdfStart + displayOffsetX) * scale, pdfWidth * scale, (displayOffsetY * pdfYStep) * scale, pdfHeight * scale);
 
     /* Plot the histogram */
     for (i = 0; i < hist->size; i++)
@@ -278,11 +283,12 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
         x = hist->minNoise + noiseInterval * i;
         y = hist->bins[i];
 
-        for (yy = y; yy > 0; yy -= pdfYStep)
+        /* Filling the histogram bar patterns */
+        for (yy = 0; yy <= y; yy += pdfYStep * scale)
         {
             float barOffset = x;
             float barEnd = barOffset + noiseInterval;
-            for (xx = barOffset; xx <= barEnd; xx += pdfXStep)
+            for (xx = barOffset; xx <= barEnd; xx += pdfXStep * scale)
             {
                 consoleplotter_printCoord(bar, &xx, &yy);
             }
@@ -293,23 +299,22 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     /* Plot the gaussian function */
     for (x = pdfStart; x < pdfStart + pdfWidth; x += pdfXStep / antiAliasLevel)
     {
-        y = gaussianPower(&histCurveHeight, &hist->meanNoise, &hist->sdNoise, &x) * guassianMultiplier;
+        y = gaussianPower(&histCurveHeight, &hist->meanNoise, &hist->sdNoise, &x) * guassianMagnitude;
         consoleplotter_printCoord("+", &x, &y);
     }
 
     /* Show labels in the graph */
-    sprintf(equationLabel, "| + : PDF Function");
-    consoleplotter_printText(equationLabel, 12, 3); /* Print Equation label on top left of line graph */
     lableLength = 28;
-    consoleplotter_printText("|", 12 + lableLength - 1, 3);
-    consoleplotter_printText("|", 12, 2);
-    consoleplotter_printText("x : histogram partitions", 12 + 2, 2);
-    consoleplotter_printText("|", 12 + lableLength - 1, 2);
+    consoleplotter_printText("|", 11, 2);
+    consoleplotter_printText("x : histogram partitions", 11 + 2, 2);
+    consoleplotter_printText("|", 11 + lableLength - 1, 2);
+    consoleplotter_printText("| + : PDF Function", 11, 3);
+    consoleplotter_printText("|", 11 + lableLength - 1, 3);
     memset(equationLabelBorder, '.', sizeof(char) * lableLength);
     equationLabelBorder[lableLength] = '\0';
-    consoleplotter_printText(equationLabelBorder, 12, 1);
+    consoleplotter_printText(equationLabelBorder, 11, 1);
     memset(equationLabelBorder, '\'', sizeof(char) * lableLength);
-    consoleplotter_printText(equationLabelBorder, 12, 4);
+    consoleplotter_printText(equationLabelBorder, 11, 4);
 
     puts("Ploted ASCII Art Graph for histogram and pdf function");
 
@@ -319,7 +324,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     consoleplotter_dispose();
 }
 
-void probability()
+void probability(void)
 {
     /* Declare all the float variables for gradient, constant, etc... */
     float m = 0.0f, c = 0.0f, r = 0.0f, rr = 0.0f, standErrOfEstimate = 0.0f;
@@ -381,7 +386,7 @@ void probability()
 
         if (histFile == NULL || binsFile == NULL)
         {
-            puts("FILE ERROR: Error writing histogram or bins data file(s)!");
+            puts("FILE ERROR: Error writing histogram or bins data file(s) for Gnuplot!");
             exit(1);
         }
 
@@ -450,7 +455,7 @@ void parseCommandLine(int argc, char **argv)
     {
         switch (opt)
         {
-        case 'f': /* Name of data file */
+        case 'f': /* Name or path of the dataset file, max 128 characters */
             sprintf(config.fileName, "%s", optarg);
             break;
         case 'l': /* Lines to scan for the data file */
