@@ -226,7 +226,7 @@ void showConsolePlot(float m, float c, float linearXStart, float linearYStart, f
     float pdfWidth = roundf(hist->sdNoise * 8);
     float histCurveHeight = gaussianHeight(hist->sdNoise);
     float pdfHeight = histCurveHeight * (guassianMultiplier + guassianMultiplier * 0.1);
-    float pdfYStep = pdfHeight / PLOT_WIDTH;
+    float pdfYStep = pdfHeight / PLOT_HEIGHT;
     float pdfXStep = pdfWidth / PLOT_WIDTH;
     char *barA = "X", *barB = "x"; /* Histogram bar patterns */
     int barAlternator = 0;
