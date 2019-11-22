@@ -369,6 +369,12 @@ void probability()
     {
         size_t i;
         float noiseInterval;
+        float mean = dataset.histogram->meanNoise,
+              sd = dataset.histogram->sdNoise,
+              noiseMin = dataset.histogram->minNoise,
+              noiseMax = dataset.histogram->maxNoise,
+              partitions = dataset.histogram->size,
+              magnitude = dataset.coordLength * dataset.histogram->interval;
         timer_start(&gnuplotTime);
         histFile = fopen(HISTOGRAM_FILE, "w");
         binsFile = fopen(BINS_FILE, "w");
@@ -394,19 +400,7 @@ void probability()
 
         fclose(binsFile);
         fclose(histFile);
-        gnuplotpipe = gnuplotter_pipe(
-            config.fileName,
-            HISTOGRAM_FILE,
-            BINS_FILE,
-            m,
-            c,
-            gaussianHeight(dataset.histogram->sdNoise),
-            dataset.histogram->meanNoise,
-            dataset.histogram->sdNoise,
-            SIZE * dataset.histogram->interval,
-            dataset.histogram->size,
-            dataset.histogram->minNoise,
-            dataset.histogram->maxNoise);
+        gnuplotpipe = gnuplotter_pipe(config.fileName, HISTOGRAM_FILE, BINS_FILE, m, c, gaussianHeight(dataset.histogram->sdNoise), mean, sd, magnitude, partitions, noiseMin, noiseMax);
         fflush(gnuplotpipe);
         timer_end(&gnuplotTime);
         timer_report(&gnuplotTime, "Gnuplot Plotting");
@@ -472,7 +466,7 @@ void parseCommandLine(int argc, char **argv)
             sscanf(optarg, "%f", &config.histogramPartitionSize);
             break;
         case 'h': /* Show a simple help message showing these configurable options */
-            printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n");
+            printf("-f [filename]\n-l [line count]\n-r [console height]\n-c [console rows]\n-i [partition size]\n");
             exit(0);
             break;
         case '?':

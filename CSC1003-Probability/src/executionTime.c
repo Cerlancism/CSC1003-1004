@@ -18,12 +18,12 @@ Utility to keep track time intervals
 #define USE_SYSTEMTIME 
 */
 
-#ifdef USE_SYSTEMTIME
-#warning "Using less precise cpu tick time for execution timer."
-#endif
-
 #ifdef USE_TIMEOFDAY
 #include <sys/time.h>
+#endif
+
+#ifdef USE_SYSTEMTIME
+#warning "Using less precise cpu tick time for execution timer."
 #endif
 
 static double getClock()
