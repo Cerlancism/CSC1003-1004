@@ -356,7 +356,7 @@ void probability(void)
     }
     else
     {
-        printf("Gnuplot not intalled, this program will plot on console as ASCII art.\n");
+        printf("Gnuplot not installed, this program will plot on console as ASCII art.\n");
     }
 
     timer_start(&consoleplotTime);
