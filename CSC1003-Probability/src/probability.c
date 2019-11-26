@@ -440,9 +440,9 @@ void probability(void)
             printf("Unable to delete one gnuplot log file.");
     }
 
-    free(dataset.coordinates);
-    free(dataset.histogram);
     free(dataset.histogram->bins);
+    free(dataset.histogram);
+    free(dataset.coordinates);
 
     puts("Program terminated successfully!");
 }
