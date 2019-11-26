@@ -96,7 +96,7 @@ Interval gnuplotTime;
 */
 DataSet analyseDataset(const char *file, float *m, float *c, float *r, float *rr, float *standErrOfEstimate, float *minY, float *maxY)
 {
-    /* Declare and intialize line buffer, index as iterator for all lines in  */
+    /* Declare and initialize line buffer, index as iterator for all lines in  */
     /* in stream file, summation of X, Y, X Square, Y Square, XY, YPrime and  */
     /* y - y' */
     char line_buf[LINE_BUFFER_SIZE];
@@ -165,7 +165,7 @@ DataSet analyseDataset(const char *file, float *m, float *c, float *r, float *rr
     *m = ((SIZE * sumXY) - (sumX * sumY)) / ((SIZE * sumXX) - (sumX * sumX));
     *c = (sumY - (*m * sumX)) / SIZE;
     *r = ((SIZE * sumXY) - (sumX * sumY)) / sqrt(((SIZE * sumXX) - (sumX * sumX)) * ((SIZE * sumYY) - (sumY * sumY)));
-    /* percentage of corelation coefficient squared  */
+    /* percentage of correlation coefficient squared  */
     *rr = ((*r) * (*r)) * 100.0f;
     /* Calculate Summation of (y - yprime)^2 */
 
@@ -180,7 +180,7 @@ DataSet analyseDataset(const char *file, float *m, float *c, float *r, float *rr
         if (coordinates[index].noise <= hist->minNoise)
             hist->minNoise = coordinates[index].noise;
     }
-    /* Caclulate standard error of estimate and assign to pointee */
+    /* Calculate standard error of estimate and assign to pointee */
     *standErrOfEstimate = sqrt(yyPrimeDiffSum / (SIZE - 2));
     sumXXMeanDiff /= SIZE;
     hist->meanNoise = sumNoise / SIZE;
