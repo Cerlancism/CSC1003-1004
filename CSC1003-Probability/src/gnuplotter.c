@@ -14,7 +14,7 @@ http://www.gnuplotting.org/
 #define GNU_PLOTH_PATH "gnuplot"
 
 /* Check the user's machine has Gnuplot intalled and runnable as a global process. */
-int gnuplotter_exists()
+int gnuplotter_exists(void)
 {
     FILE *pipe = popen(GNU_PLOTH_PATH, "w");
 

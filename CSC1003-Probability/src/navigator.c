@@ -1,4 +1,4 @@
-#include "mathsUtils.h" /* fuzzyEquals */
+#include "mathsUtils.h" /* fuzzyEquals clampi */
 
 #define SCALE_MAX 8.0f
 #define SCALE_MID 0.1f

@@ -133,10 +133,10 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
     /* Prints the y bar labelling */
     for (y = 1; y < _bufferRows - 1; y++)
     {
-        char labelPrint[10];
+        char labelPrint[9];
         consoleplotter_printText("|", LEFT_PAD, y);
         consoleplotter_printText("|", _bufferColumns - 1, y);
-        sprintf(labelPrint, "%5.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
+        snprintf(labelPrint, 8, "%8.3f", ((_bufferRows - 2 - y) * _yMultiplier - _yOffset));
         consoleplotter_printText(labelPrint, 1, y);
     }
 
@@ -172,18 +172,33 @@ void consoleplotter_init(unsigned int rows, unsigned int colums, float xStart, f
 }
 
 /* Display the plotter to console. */
-void consoleplotter_render()
+void consoleplotter_render(void)
 {
+    /* AE 1 Old code, around 3 times slower
     size_t i;
     for (i = 0; i < _bufferRows; i++)
     {
         puts(_displayBuffer[i]);
     }
     puts("");
+    */
+
+    /* Reduced the time printing to the console by only calling puts once  */
+    size_t i;
+    int columnSize = sizeof(char) * _bufferColumns + 1;
+    int fullLength = columnSize * _bufferRows * (sizeof(char));
+    char *dumpChars = malloc(fullLength + 1);
+    for (i = 0; i < _bufferRows; i++)
+    {
+        memcpy(dumpChars + i * columnSize, _displayBuffer[i], columnSize - 1);
+        memcpy(dumpChars + (i + 1) * columnSize - 1, "\n\0", 2);
+    }
+    puts(dumpChars);
+    free(dumpChars);
 }
 
 /* Retains allocated memory blocks for display buffer characters but resets them to spaces. */
-void consoleplotter_clear()
+void consoleplotter_clear(void)
 {
     size_t i;
     for (i = 0; i < _bufferRows; i++)
@@ -192,7 +207,7 @@ void consoleplotter_clear()
     }
 }
 
-void consoleplotter_dispose()
+void consoleplotter_dispose(void)
 {
     size_t i;
     for (i = 0; i < _bufferRows; i++)

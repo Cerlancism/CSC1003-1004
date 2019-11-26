@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "*.gs": "javascript",
-        "time.h": "c",
-        "timeb.h": "c",
-        "timeb_s.h": "c",
-        "crtdefs.h": "c"
-    }
-}

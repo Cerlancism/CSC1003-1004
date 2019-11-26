@@ -10,27 +10,29 @@ Utility to keep track time intervals
 
 #include "executionTime.h"
 
-/* Enable this to use the less precise timeofday if the more precise clock_gettime(CLOCK_MONOTONIC, &_t) does not work as it needs runtime or pthread library.  
-#define USE_TIMEOFDAY
+/* Default using the highest precision timer clock_gettime CLOCK_MONOTONIC */
+
+/* Enable this to use the less precise timeofday if the more precise clock_gettime(CLOCK_MONOTONIC, &_t) does not work as it needs runtime library, OS X 10.12 above or winpthread library.  
+#define USE_TIMEVAL
 */
 
-/* Enable this to use the less precise cpu tick as last fallback.
-#define USE_SYSTEMTIME 
+/* Enable this to use the less precise clock() as last fallback.
+#define USE_CLOCKT 
 */
 
-#ifdef USE_SYSTEMTIME
-#warning "Using less precise cpu tick time for execution timer."
-#endif
-
-#ifdef USE_TIMEOFDAY
+#ifdef USE_TIMEVAL
 #include <sys/time.h>
 #endif
 
-static double getClock()
+#ifdef USE_CLOCKT
+#warning "Using less precise clock() time for execution timer."
+#endif
+
+static double getClock(void)
 {
-#ifdef USE_SYSTEMTIME
+#ifdef USE_CLOCKT
     return ((double)clock() / CLOCKS_PER_SEC) * 1000;
-#elif defined(USE_TIMEOFDAY)
+#elif defined(USE_TIMEVAL)
     static struct timeval _tv;
     gettimeofday(&_tv, NULL);
     return _tv.tv_sec * 1000.0 + _tv.tv_usec / 1000.0;
@@ -59,9 +61,9 @@ double timer_getInterval(const Interval *const interval)
 void timer_report(const Interval *const interval, const char *const description)
 {
     double result = timer_getInterval(interval);
-    if (result == 0) /* Time interval is too short for the precision of current timer */
+    if (result == 0) /* If time interval is too short for the precision of current timer */
     {
-        printf("Execution Time for %s: much less than 1 ms \n", description);
+        printf("Execution Time for %s: probably a lot less than 1 ms \n", description);
     }
     else
     {
